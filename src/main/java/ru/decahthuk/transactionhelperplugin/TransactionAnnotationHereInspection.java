@@ -2,28 +2,23 @@ package ru.decahthuk.transactionhelperplugin;
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.search.searches.ReferencesSearch;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtil;
-import com.intellij.usageView.UsageInfo;
-import com.intellij.usages.Usage;
-import com.intellij.usages.UsageViewManager;
-import com.intellij.util.Query;
 import org.jetbrains.annotations.NotNull;
+import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalInspectionTool {
+
+    TransactionSearcherService transactionSearcherService =
+            ApplicationManager.getApplication().getService(TransactionSearcherService.class);
+
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
@@ -37,40 +32,15 @@ public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalIn
                     if (annotationName.equals("org.springframework.transaction.annotation.Transactional")) {
                         holder.registerProblem(annotation,
                                 InspectionBundle.message("inspection.transaction.annotation.here.descriptor"));
-
-                        List<PsiElement> psiElements = new ArrayList<>();
-
-                        ReferencesSearch.search(method).forEach(reference -> {
-                            PsiElement psiElement = reference.getElement();
-                            PsiMethod containingMethod = PsiTreeUtil.getParentOfType(psiElement, PsiMethod.class);
-                            PsiElement containingClass = PsiUtil.getTopLevelClass(containingMethod);
-                            psiElements.add(psiElement);
-                        });
-                        holder.registerProblem(method, psiElements.toString());
-
-                        buildUsageTree(method, 0);
+                        LocalDateTime before = LocalDateTime.now();
+                        AtomicInteger methodCounter = new AtomicInteger(0);
+                        transactionSearcherService.buildUsageTree(method, 0, methodCounter);
+                        LocalDateTime after = LocalDateTime.now();
+                        System.out.println("Millisecs to run recursion = " + ChronoUnit.MILLIS.between(before, after));
+                        System.out.println("Methods counter = " + methodCounter.get());
                     }
                 }
             }
         };
-    }
-
-    public static void buildUsageTree(PsiMethod method, int level) {
-        String indent = "  ".repeat(level);
-        System.out.println(indent + "Method: " + method.getName() + " in Class: " + method.getContainingClass().getQualifiedName());
-
-        Query<PsiReference> query = ReferencesSearch.search(method);
-        Set<PsiMethod> visitedMethods = new HashSet<>();
-
-        query.forEach(reference -> {
-            PsiElement element = reference.getElement();
-            if (element != null) {
-                PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
-                if (containingMethod != null && !visitedMethods.contains(containingMethod)) {
-                    visitedMethods.add(containingMethod);
-                    buildUsageTree(containingMethod, level + 1);
-                }
-            }
-        });
     }
 }
