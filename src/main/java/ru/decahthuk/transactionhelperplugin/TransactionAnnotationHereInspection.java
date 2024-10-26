@@ -10,10 +10,6 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalInspectionTool {
 
     TransactionSearcherService transactionSearcherService =
@@ -32,12 +28,7 @@ public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalIn
                     if (annotationName.equals("org.springframework.transaction.annotation.Transactional")) {
                         holder.registerProblem(annotation,
                                 InspectionBundle.message("inspection.transaction.annotation.here.descriptor"));
-                        LocalDateTime before = LocalDateTime.now();
-                        AtomicInteger methodCounter = new AtomicInteger(0);
-                        transactionSearcherService.buildUsageTree(method, 0, methodCounter);
-                        LocalDateTime after = LocalDateTime.now();
-                        System.out.println("Millisecs to run recursion = " + ChronoUnit.MILLIS.between(before, after));
-                        System.out.println("Methods counter = " + methodCounter.get());
+                        transactionSearcherService.buildUsageTreeWithBenchmarking(method);
                     }
                 }
             }
