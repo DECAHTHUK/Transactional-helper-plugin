@@ -8,12 +8,17 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
+import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
+
+import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 
 public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalInspectionTool {
 
     TransactionSearcherService transactionSearcherService =
             ApplicationManager.getApplication().getService(TransactionSearcherService.class);
+    EntitySearcherService entitySearcherService =
+            ApplicationManager.getApplication().getService(EntitySearcherService.class);
 
 
     @Override
@@ -23,12 +28,14 @@ public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalIn
             public void visitMethod(@NotNull PsiMethod method) {
                 super.visitMethod(method);
                 PsiAnnotation[] annotations = method.getAnnotations();
+                transactionSearcherService.buildUsageTreeWithBenchmarking(method);
                 for (PsiAnnotation annotation : annotations) {
                     String annotationName = annotation.getQualifiedName();
-                    if (annotationName.equals("org.springframework.transaction.annotation.Transactional")) {
+                    if (annotationName.equals(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)) {
                         holder.registerProblem(annotation,
                                 InspectionBundle.message("inspection.transaction.annotation.here.descriptor"));
                         transactionSearcherService.buildUsageTreeWithBenchmarking(method);
+                        entitySearcherService.findEntityClasses(method.getProject());
                     }
                 }
             }

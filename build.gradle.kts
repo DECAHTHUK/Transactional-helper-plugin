@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+    implementation ("jakarta.persistence:jakarta.persistence-api:2.2.3")
     implementation("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 }
