@@ -25,7 +25,7 @@ public class TransactionInformationPayload {
     /**
      * Is transaction declared
      */
-    private boolean isTransactional; // TODO: Не забыть проверить class level аннотации + лямбда референсы
+    private boolean isTransactional; // TODO: Не забыть проверить лямбда референсы
 
     /**
      * Transactional params

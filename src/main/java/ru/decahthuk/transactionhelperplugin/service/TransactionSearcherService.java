@@ -2,8 +2,10 @@ package ru.decahthuk.transactionhelperplugin.service;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNameValuePair;
 import com.intellij.psi.PsiReference;
@@ -25,6 +27,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static ru.decahthuk.transactionhelperplugin.utils.AnnotationUtils.parseAnnotationArgs;
+import static ru.decahthuk.transactionhelperplugin.utils.Constants.TEST_CLASS_POSTFIX;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 
 @Slf4j
@@ -64,8 +68,12 @@ public final class TransactionSearcherService {
             PsiElement element = reference.getElement();
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (containingMethod != null && !visitedMethods.contains(containingMethod)) {
-                visitedMethods.add(containingMethod);
-                buildUsageTreeInner(containingMethod, methodCounter, newNode);
+                PsiClass containingClass = containingMethod.getContainingClass();
+                // Excluding test classes. May make mechanism better
+                if (containingClass == null || !String.valueOf(containingClass.getQualifiedName()).endsWith(TEST_CLASS_POSTFIX)) {
+                    visitedMethods.add(containingMethod);
+                    buildUsageTreeInner(containingMethod, methodCounter, newNode);
+                }
             }
         });
         return newNode;
@@ -85,19 +93,10 @@ public final class TransactionSearcherService {
         if (annotation == null) { // Searching less prior Class-level annotations
             PsiClass containingClass = method.getContainingClass();
             if (containingClass != null) {
-                log.debug("Searching class level annotation");
-                annotation = containingClass.getModifierList().findAnnotation(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME);
+                annotation = Optional.ofNullable(containingClass.getModifierList())
+                        .map(t -> t.findAnnotation(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)).orElse(null);
             }
         }
         return parseAnnotationArgs(annotation);
-    }
-
-    private Map<String, String> parseAnnotationArgs(PsiAnnotation annotation) {
-        if (annotation == null) {
-            return null;
-        }
-        PsiNameValuePair[] attributes = annotation.getParameterList().getAttributes();
-        return Arrays.stream(attributes).collect(Collectors.toMap(PsiNameValuePair::getAttributeName,
-                t2 -> String.valueOf(t2.getLiteralValue()), (t1, t2) -> t2));
     }
 }

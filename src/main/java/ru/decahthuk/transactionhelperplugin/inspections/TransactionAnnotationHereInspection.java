@@ -1,4 +1,4 @@
-package ru.decahthuk.transactionhelperplugin;
+package ru.decahthuk.transactionhelperplugin.inspections;
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
@@ -10,6 +10,8 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
+
+import java.util.Objects;
 
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 
@@ -31,9 +33,7 @@ public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalIn
                 transactionSearcherService.buildUsageTreeWithBenchmarking(method);
                 for (PsiAnnotation annotation : annotations) {
                     String annotationName = annotation.getQualifiedName();
-                    if (annotationName.equals(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)) {
-                        holder.registerProblem(annotation,
-                                InspectionBundle.message("inspection.transaction.annotation.here.descriptor"));
+                    if (Objects.equals(annotationName, TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)) {
                         transactionSearcherService.buildUsageTreeWithBenchmarking(method);
                         entitySearcherService.findEntityClasses(method.getProject());
                     }

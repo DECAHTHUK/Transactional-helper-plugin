@@ -1,7 +1,6 @@
 package ru.decahthuk.transactionhelperplugin.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Узел древовидной структуры
+ * Node of a tree-like structure
  *
  * @param <T>
  */

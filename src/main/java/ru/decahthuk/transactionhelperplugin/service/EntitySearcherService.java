@@ -25,6 +25,11 @@ public final class EntitySearcherService {
             PsiClass annotationClass = JavaPsiFacade.getInstance(project)
                     .findClass("jakarta.persistence.Entity", GlobalSearchScope.allScope(project));
 
+            if (annotationClass == null) {
+                System.out.println("There is no jakarta persistence dependency"); // TODO: add old dependency support
+                entityClasses.clear(); // TODO: Cache evict call
+                return;
+            }
             Collection<PsiClass> annotatedElements = AnnotatedElementsSearch.searchPsiClasses(
                     annotationClass,
                     GlobalSearchScope.allScope(project)
@@ -32,6 +37,7 @@ public final class EntitySearcherService {
             for (PsiClass element : annotatedElements) {
                 if (element != null) {
                     System.out.println("Found class with annotation: " + element.getQualifiedName());
+                    entityClasses.add(element);
                 }
             }
         });

@@ -25,6 +25,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+
     <localInspection language="JAVA"
                      bundle="messages.InspectionBundle"
                      key="inspection.transaction.annotation.here.display.name"
@@ -33,7 +34,17 @@
                      groupKey="group.names.probable.bugs"
                      enabledByDefault="true"
                      level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.TransactionAnnotationHereInspection"/>
+                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionAnnotationHereInspection"/>
+
+    <localInspection language="JAVA"
+                     bundle="messages.InspectionBundle"
+                     key="inspection.transaction.nested.transaction.display.name"
+                     groupPath="Java"
+                     groupBundle="messages.InspectionsBundle"
+                     groupKey="group.names.probable.bugs"
+                     enabledByDefault="true"
+                     level="WARNING"
+                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.PotentiallyUnwantedNestedTransactionInspection"/>
 
     </extensions>
 </idea-plugin>
