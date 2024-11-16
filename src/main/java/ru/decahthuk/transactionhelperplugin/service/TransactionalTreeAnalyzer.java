@@ -4,6 +4,8 @@ import com.intellij.psi.PsiClass;
 import org.apache.commons.collections.CollectionUtils;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
+import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
+import ru.decahthuk.transactionhelperplugin.utils.AnnotationUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public final class TransactionalTreeAnalyzer {
      * Searches if there is any parent transaction
      *
      * @param tree - tree of calls
-     * @param classLevelInvocation - indicator that method caller is in the same class (proxy won't work)
+     * @param classLevelInvocation - indicator that method caller is in the same class (proxy won't work). Default true
      * @return - there is higher level transaction going on
      */
     public static boolean treeContainsUpperLevelTransactional(Node<TransactionInformationPayload> tree,
@@ -39,7 +41,13 @@ public final class TransactionalTreeAnalyzer {
                 }
             }
             if (!classLevelInvocation && childData.isTransactional()) {
-                return true;
+                TransactionalPropagation propagation = AnnotationUtils.getPropagationArg(childData.getArgs());
+                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                    continue;
+                }
+                if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
+                    return true;
+                }
             }
             return treeContainsUpperLevelTransactional(child, classLevelInvocation);
         }

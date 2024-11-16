@@ -1,13 +1,12 @@
 package ru.decahthuk.transactionhelperplugin.service;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiNameValuePair;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -18,25 +17,29 @@ import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static ru.decahthuk.transactionhelperplugin.utils.AnnotationUtils.parseAnnotationArgs;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TEST_CLASS_POSTFIX;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 
 @Slf4j
-@Service
-public final class TransactionSearcherService {
+@Service(Service.Level.PROJECT)
+public final class TransactionSearcherService implements Disposable {
+
+    private final Project project;
 
     //TODO: Использовать кэш как фичу. Типо встретил проблемы с производительностью и начал кэшировать. Позже. + Some sort of expiry
     private final Map<String, Node<PsiMethod>> cache = new HashMap<>();
+
+    public TransactionSearcherService(Project project) {
+        this.project = project;
+    }
 
     public Node<TransactionInformationPayload> buildUsageTree(PsiMethod method) {
         return buildUsageTreeInner(method, null, null);
@@ -81,8 +84,8 @@ public final class TransactionSearcherService {
 
     private TransactionInformationPayload buildTransactionInformationPayload(PsiMethod method) {
         TransactionInformationPayload payload = new TransactionInformationPayload();
-        payload.setPsiMethod(method);
         Map<String, String> transactionalArgs = searchTransactionalData(method);
+        payload.setPsiMethod(method);
         payload.setTransactional(transactionalArgs != null);
         payload.setArgs(transactionalArgs);
         return payload;
@@ -98,5 +101,14 @@ public final class TransactionSearcherService {
             }
         }
         return parseAnnotationArgs(annotation);
+    }
+
+    private void cacheEvict() {
+        cache.clear();
+    }
+
+    @Override
+    public void dispose() {
+        cacheEvict();
     }
 }

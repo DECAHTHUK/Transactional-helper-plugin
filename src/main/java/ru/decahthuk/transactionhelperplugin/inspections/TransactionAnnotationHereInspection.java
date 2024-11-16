@@ -3,6 +3,7 @@ package ru.decahthuk.transactionhelperplugin.inspections;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiElementVisitor;
@@ -17,14 +18,15 @@ import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL
 
 public class TransactionAnnotationHereInspection extends AbstractBaseJavaLocalInspectionTool {
 
-    TransactionSearcherService transactionSearcherService =
-            ApplicationManager.getApplication().getService(TransactionSearcherService.class);
-    EntitySearcherService entitySearcherService =
-            ApplicationManager.getApplication().getService(EntitySearcherService.class);
+    private TransactionSearcherService transactionSearcherService;
+    private EntitySearcherService entitySearcherService;
 
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+        Project project = holder.getProject();
+        transactionSearcherService = project.getService(TransactionSearcherService.class);
+        entitySearcherService = project.getService(EntitySearcherService.class);
         return new JavaElementVisitor() {
             @Override
             public void visitMethod(@NotNull PsiMethod method) {
