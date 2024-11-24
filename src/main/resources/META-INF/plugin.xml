@@ -25,26 +25,37 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
     <localInspection language="JAVA"
                      bundle="messages.InspectionBundle"
-                     key="inspection.transaction.annotation.here.display.name"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionAnnotationHereInspection"/>
-
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.transaction.nested.transaction.display.name"
+                     key="inspection.transaction.nested.display.name"
                      groupPath="Java"
                      groupBundle="messages.InspectionsBundle"
                      groupKey="group.names.probable.bugs"
                      enabledByDefault="true"
                      level="WARNING"
                      implementationClass="ru.decahthuk.transactionhelperplugin.inspections.PotentiallyUnwantedNestedTransactionInspection"/>
+
+
+    <localInspection language="JAVA"
+                     bundle="messages.InspectionBundle"
+                     key="inspection.transaction.mandatory.display.name"
+                     groupPath="Java"
+                     groupBundle="messages.InspectionsBundle"
+                     groupKey="group.names.probable.bugs"
+                     enabledByDefault="true"
+                     level="WARNING"
+                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.MandatoryPropagationInspection"/>
+
+
+    <localInspection language="JAVA"
+                     bundle="messages.InspectionBundle"
+                     key="inspection.transaction.never.display.name"
+                     groupPath="Java"
+                     groupBundle="messages.InspectionsBundle"
+                     groupKey="group.names.probable.bugs"
+                     enabledByDefault="true"
+                     level="WARNING"
+                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.NeverPropagationInspection"/>
 
     </extensions>
 </idea-plugin>

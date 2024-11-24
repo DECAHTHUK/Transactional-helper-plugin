@@ -17,12 +17,13 @@ import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
-public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBaseJavaLocalInspectionTool {
+public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionTool {
 
-    private static final Logger LOG = Logger.getInstance(PotentiallyUnwantedNestedTransactionInspection.class);
+    private static final Logger LOG = Logger.getInstance(NeverPropagationInspection.class);
 
     private TransactionSearcherService transactionSearcherService;
 
+    //TODO: for all inspections add class level annotation check too
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         Project project = holder.getProject();
@@ -33,12 +34,12 @@ public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBase
                 super.visitMethod(method);
                 PsiAnnotation[] annotations = method.getAnnotations();
                 for (PsiAnnotation annotation : annotations) {
-                    if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.REQUIRES_NEW)) {
+                    if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.NEVER)) {
                         Node<TransactionInformationPayload> tree = transactionSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
-                            LOG.warn("PotentiallyUnwantedNestedTransactionInspection ping");
+                            LOG.warn("NeverPropagationInspection ping");
                             holder.registerProblem(annotation,
-                                    InspectionBundle.message("inspection.transaction.nested.descriptor"));
+                                    InspectionBundle.message("inspection.transaction.never.descriptor"));
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package ru.decahthuk.transactionhelperplugin.model;
 
-import com.intellij.psi.PsiMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +17,14 @@ import java.util.Map;
 public class TransactionInformationPayload {
 
     /**
-     * Method
+     * Название класса
      */
-    private PsiMethod psiMethod; // TODO: Может это не нужно и можно будет сократить до имени или какого-нибудь референса
+    private String className;
+
+    /**
+     * Идентификатор метода
+     */
+    private String methodIdentifier;
 
     /**
      * Is transaction declared

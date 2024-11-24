@@ -17,9 +17,9 @@ import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
-public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBaseJavaLocalInspectionTool {
+public class MandatoryPropagationInspection extends AbstractBaseJavaLocalInspectionTool {
 
-    private static final Logger LOG = Logger.getInstance(PotentiallyUnwantedNestedTransactionInspection.class);
+    private static final Logger LOG = Logger.getInstance(MandatoryPropagationInspection.class);
 
     private TransactionSearcherService transactionSearcherService;
 
@@ -33,12 +33,12 @@ public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBase
                 super.visitMethod(method);
                 PsiAnnotation[] annotations = method.getAnnotations();
                 for (PsiAnnotation annotation : annotations) {
-                    if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.REQUIRES_NEW)) {
+                    if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.MANDATORY)) {
                         Node<TransactionInformationPayload> tree = transactionSearcherService.buildUsageTreeWithBenchmarking(method);
-                        if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
-                            LOG.warn("PotentiallyUnwantedNestedTransactionInspection ping");
+                        if (TransactionalTreeAnalyzer.treeBranchContainsNoTransaction(tree)) {
+                            LOG.warn("MandatoryPropagationInspection ping");
                             holder.registerProblem(annotation,
-                                    InspectionBundle.message("inspection.transaction.nested.descriptor"));
+                                    InspectionBundle.message("inspection.transaction.mandatory.descriptor"));
                         }
                     }
                 }

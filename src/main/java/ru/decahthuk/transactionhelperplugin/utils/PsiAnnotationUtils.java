@@ -7,14 +7,25 @@ import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_PROPAGATION_ARG_NAME;
 
-public final class AnnotationUtils {
+public final class PsiAnnotationUtils {
 
-    private AnnotationUtils() {
+    private PsiAnnotationUtils() {
+    }
+
+    public static boolean annotationIsTransactionalWithPropagation(PsiAnnotation annotation, TransactionalPropagation propagation) {
+        String annotationName = annotation.getQualifiedName();
+        if (Objects.equals(annotationName, TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)) {
+            TransactionalPropagation actualPropagation = getPropagationArg(annotation);
+            return propagation.equals(actualPropagation);
+        }
+        return false;
     }
 
     public static TransactionalPropagation getPropagationArg(PsiAnnotation annotation) {
@@ -35,7 +46,7 @@ public final class AnnotationUtils {
         }
         PsiNameValuePair[] attributes = annotation.getParameterList().getAttributes();
         return Arrays.stream(attributes).collect(Collectors.toMap(PsiNameValuePair::getAttributeName,
-                AnnotationUtils::getAttributeValue, (t1, t2) -> t2));
+                PsiAnnotationUtils::getAttributeValue, (t1, t2) -> t2));
     }
 
     private static String getAttributeValue(PsiNameValuePair psiNameValuePair) {
