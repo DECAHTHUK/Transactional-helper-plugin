@@ -6,7 +6,7 @@ import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
-import java.util.List;
+import java.util.Set;
 
 public final class TransactionalTreeAnalyzer {
 
@@ -36,7 +36,7 @@ public final class TransactionalTreeAnalyzer {
      */
     private static boolean treeContainsUpperLevelTransactional(Node<TransactionInformationPayload> tree,
                                                               boolean classLevelInvocation) {
-        List<Node<TransactionInformationPayload>> children = tree.getChildren();
+        Set<Node<TransactionInformationPayload>> children = tree.getChildren();
         if (CollectionUtils.isEmpty(tree.getChildren())) {
             return false;
         }
@@ -48,6 +48,9 @@ public final class TransactionalTreeAnalyzer {
                 TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
                 if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
                     continue;
+                }
+                if (propagation == TransactionalPropagation.NEVER) {
+                    return false;
                 }
                 if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
                     return true;
@@ -63,7 +66,7 @@ public final class TransactionalTreeAnalyzer {
 
     private static boolean treeBranchContainsNoTransaction(Node<TransactionInformationPayload> tree,
                                                                boolean classLevelInvocation) {
-        List<Node<TransactionInformationPayload>> children = tree.getChildren();
+        Set<Node<TransactionInformationPayload>> children = tree.getChildren();
         if (CollectionUtils.isEmpty(tree.getChildren())) {
             return true;
         }
@@ -74,6 +77,9 @@ public final class TransactionalTreeAnalyzer {
             if (!classLevelInvocationConcrete && childData.isTransactional()) {
                 TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
                 if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                    return true;
+                }
+                if (propagation == TransactionalPropagation.NEVER) {
                     return true;
                 }
                 if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {

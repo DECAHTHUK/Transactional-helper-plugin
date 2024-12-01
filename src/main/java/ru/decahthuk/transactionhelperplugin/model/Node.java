@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Node of a tree-like structure
@@ -20,17 +20,15 @@ import java.util.List;
 @Setter
 public class Node<T> {
     private T data;
-    private Node<T> parent;
-    private List<Node<T>> children;
+    private Set<Node<T>> children;
 
     public Node(T data, Node<T> parent) {
         this.data = data;
-        this.parent = parent;
     }
 
     public void addChild(Node<T> child) {
         if (children == null) {
-            children = new ArrayList<>();
+            children = new HashSet<>();
         }
         children.add(child);
     }
@@ -39,7 +37,4 @@ public class Node<T> {
         return CollectionUtils.isEmpty(children);
     }
 
-    public boolean isRoot() {
-        return parent == null;
-    }
 }

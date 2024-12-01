@@ -17,13 +17,14 @@ import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
+import java.util.List;
+
 public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionTool {
 
     private static final Logger LOG = Logger.getInstance(NeverPropagationInspection.class);
 
     private TransactionSearcherService transactionSearcherService;
 
-    //TODO: for all inspections add class level annotation check too
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         Project project = holder.getProject();
@@ -32,7 +33,7 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
             @Override
             public void visitMethod(@NotNull PsiMethod method) {
                 super.visitMethod(method);
-                PsiAnnotation[] annotations = method.getAnnotations();
+                List<PsiAnnotation> annotations = PsiAnnotationUtils.getMethodLevelAndClassLevelAnnotations(method);
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.NEVER)) {
                         Node<TransactionInformationPayload> tree = transactionSearcherService.buildUsageTreeWithBenchmarking(method);

@@ -1,9 +1,7 @@
-package testData.inspections.nestedUnwanted;
-
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
-public class NestedRequiresNewWithoutTransaction {
+public class NestedRequiresNewWithNoOngoing {
 
     public void outerMethod() {
         NestedTransactionalMethod nestedTransactionalMethod = new NestedTransactionalMethod();

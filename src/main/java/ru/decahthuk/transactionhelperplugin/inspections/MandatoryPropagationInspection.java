@@ -17,6 +17,8 @@ import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
+import java.util.List;
+
 public class MandatoryPropagationInspection extends AbstractBaseJavaLocalInspectionTool {
 
     private static final Logger LOG = Logger.getInstance(MandatoryPropagationInspection.class);
@@ -31,7 +33,7 @@ public class MandatoryPropagationInspection extends AbstractBaseJavaLocalInspect
             @Override
             public void visitMethod(@NotNull PsiMethod method) {
                 super.visitMethod(method);
-                PsiAnnotation[] annotations = method.getAnnotations();
+                List<PsiAnnotation> annotations = PsiAnnotationUtils.getMethodLevelAndClassLevelAnnotations(method);
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.MANDATORY)) {
                         Node<TransactionInformationPayload> tree = transactionSearcherService.buildUsageTreeWithBenchmarking(method);

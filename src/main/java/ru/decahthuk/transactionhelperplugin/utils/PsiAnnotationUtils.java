@@ -2,10 +2,13 @@ package ru.decahthuk.transactionhelperplugin.utils;
 
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNameValuePair;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +20,15 @@ import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL
 public final class PsiAnnotationUtils {
 
     private PsiAnnotationUtils() {
+    }
+
+    public static List<PsiAnnotation> getMethodLevelAndClassLevelAnnotations(PsiMethod method) {
+        List<PsiAnnotation> annotations = Arrays.stream(method.getAnnotations()).collect(Collectors.toList());
+        PsiClass containingClass = method.getContainingClass();
+        if (containingClass != null) {
+            annotations.addAll(List.of(containingClass.getAnnotations()));
+        }
+        return annotations;
     }
 
     public static boolean annotationIsTransactionalWithPropagation(PsiAnnotation annotation, TransactionalPropagation propagation) {

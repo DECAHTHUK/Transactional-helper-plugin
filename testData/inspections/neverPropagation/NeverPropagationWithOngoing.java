@@ -1,9 +1,7 @@
-package testData.inspections.nestedUnwanted;
-
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
-public class NestedRequiresNewTransactional {
+public class NeverPropagationWithOngoing {
 
     @Transactional
     public void outerMethod() {
@@ -14,7 +12,7 @@ public class NestedRequiresNewTransactional {
 
 class NestedTransactionalMethod {
 
-    <warning descr="Nested transaction here. Creating a new transaction inside an existing one may produce unexpected results(Applicable to hibernate).">@Transactional(propagation = Propagation.REQUIRES_NEW)</warning>
+    <warning descr="Never propagated transactional declaration may have an ongoing transaction here. Check your call tree.">@Transactional(propagation = Propagation.NEVER)</warning>
     public void innerMethod() {
         // Some code
     }

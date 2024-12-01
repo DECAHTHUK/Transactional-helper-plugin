@@ -114,7 +114,9 @@ public final class TransactionSearcherService implements Disposable {
             PsiMethod method, AtomicInteger methodCounter, Node<TransactionInformationPayload> rootNode) {
         String classMethodName = PsiMethodUtils.getUniqueClassMethodName(method);
         if (cache.containsKey(classMethodName)) {
-            return cache.get(classMethodName);
+            Node<TransactionInformationPayload> cachedValue = cache.get(classMethodName);
+            Optional.ofNullable(rootNode).ifPresent(t -> t.addChild(cachedValue));
+            return cachedValue;
         }
         Node<TransactionInformationPayload> newNode = new Node<>(buildTransactionInformationPayload(method), rootNode);
         Optional.ofNullable(rootNode).ifPresent(t -> t.addChild(newNode));
