@@ -11,12 +11,14 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.AnnotatedElementsSearch;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.PluginDisposable;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
@@ -82,9 +84,9 @@ public final class EntitySearcherService implements Disposable {
                 if (entityClassInformationMap.isEmpty()) {
                     return;
                 }
-                PsiElement element = event.getElement();
-                if (element instanceof PsiClass psiClass) {
-                    if (entityClassInformationMap.containsKey(psiClass.getQualifiedName())) {
+                PsiElement element = event.getFile();
+                if (element instanceof PsiJavaFile psiJavaFile) {
+                    if (cacheContainsModule(psiJavaFile.getPackageName())) {
                         cacheEvict();
                     }
                 }
@@ -109,7 +111,7 @@ public final class EntitySearcherService implements Disposable {
                 if (psiClass != null) {
                     psiClass.accept(new JavaRecursiveElementVisitor() {
                         @Override
-                        public void visitField(PsiField field) {
+                        public void visitField(@NotNull PsiField field) {
                             super.visitField(field);
                             PsiAnnotation[] annotations = field.getAnnotations();
                             for (PsiAnnotation annotation : annotations) {
@@ -150,7 +152,7 @@ public final class EntitySearcherService implements Disposable {
             PsiClass annotationClass = null;
             for (String name : ENTITY_ANNOTATION_QUALIFIED_NAMES) {
                 if (annotationClass == null) {
-                    annotationClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.projectScope(project));
+                    annotationClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.allScope(project));
                 }
             }
 
@@ -171,6 +173,15 @@ public final class EntitySearcherService implements Disposable {
             }
         });
         return psiClasses;
+    }
+
+    private boolean cacheContainsModule(String moduleName) {
+        for (String className : entityClassInformationMap.keySet()) {
+            if (StringUtils.startsWith(className, moduleName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void cacheEvict() {

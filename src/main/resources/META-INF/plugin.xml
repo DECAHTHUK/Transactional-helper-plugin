@@ -57,5 +57,16 @@
                      level="WARNING"
                      implementationClass="ru.decahthuk.transactionhelperplugin.inspections.NeverPropagationInspection"/>
 
+
+    <localInspection language="JAVA"
+                     bundle="messages.InspectionBundle"
+                     key="inspection.method.lazy.getter.call.display.name"
+                     groupPath="Java"
+                     groupBundle="messages.InspectionsBundle"
+                     groupKey="group.names.probable.bugs"
+                     enabledByDefault="true"
+                     level="WARNING"
+                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.LazyInitializationInspection"/>
+
     </extensions>
 </idea-plugin>

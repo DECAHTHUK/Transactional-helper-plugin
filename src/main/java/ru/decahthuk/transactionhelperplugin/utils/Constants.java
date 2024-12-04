@@ -1,7 +1,5 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
-import com.github.weisj.jsvg.S;
-
 import java.util.List;
 
 public final class Constants {
@@ -15,6 +13,7 @@ public final class Constants {
     public static final List<String> JOIN_TABLE_ANNOTATIONS = List.of("javax.persistence.OneToOne", "javax.persistence.OneToMany",
             "javax.persistence.ManyToOne", "javax.persistence.ManyToMany", "javax.persistence.ElementCollection", "jakarta.persistence.OneToOne",
             "jakarta.persistence.OneToMany", "jakarta.persistence.ManyToOne", "jakarta.persistence.ManyToMany", "jakarta.persistence.ElementCollection");
+    public static final String GETTER_PREFIX = "get";
 
     private Constants() {
     }

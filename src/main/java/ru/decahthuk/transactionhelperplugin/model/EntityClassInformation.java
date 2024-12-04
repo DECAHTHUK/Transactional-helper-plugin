@@ -1,12 +1,12 @@
 package ru.decahthuk.transactionhelperplugin.model;
 
-import com.github.weisj.jsvg.S;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.decahthuk.transactionhelperplugin.utils.EntityPsiClassUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,9 +20,9 @@ public class EntityClassInformation {
     @Setter
     private String className;
 
-    private List<String> lazyFieldNames;
+    private List<String> lazyFieldNames = new ArrayList<>();
 
-    private List<String> lazyFieldGetters;
+    private List<String> lazyFieldGetters = new ArrayList<>();
 
     public void addLazyField(String fieldName) {
         lazyFieldNames.add(fieldName);
