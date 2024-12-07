@@ -1,6 +1,5 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
-import com.github.weisj.jsvg.S;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
@@ -26,7 +25,7 @@ public final class PsiMethodUtils {
             parameterTypes.setLength(parameterTypes.length() - 1); // Remove the trailing comma
         }
 
-        return methodName + "(" + parameterTypes.toString() + ")";
+        return methodName + "(" + parameterTypes + ")";
     }
 
     public static String getClassName(PsiMethod method) {

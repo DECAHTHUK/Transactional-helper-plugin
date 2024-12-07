@@ -24,8 +24,10 @@ import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,16 +41,16 @@ import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL
 
 @Slf4j
 @Service(Service.Level.PROJECT)
-public final class TransactionSearcherService implements Disposable {
+public final class TransactionalSearcherService implements Disposable {
 
-    private static final Logger LOG = Logger.getInstance(TransactionSearcherService.class);
+    private static final Logger LOG = Logger.getInstance(TransactionalSearcherService.class);
 
     private final Project project;
 
     private final Lock lock = new ReentrantLock();
     private final Map<String, Node<TransactionInformationPayload>> cache = new HashMap<>();
 
-    public TransactionSearcherService(Project project) {
+    public TransactionalSearcherService(Project project) {
         this.project = project;
         PsiManager manager = PsiManager.getInstance(project);
         manager.addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
@@ -144,7 +146,7 @@ public final class TransactionSearcherService implements Disposable {
         return newNode;
     }
 
-    private TransactionInformationPayload buildTransactionInformationPayload(PsiMethod method) {
+    public static TransactionInformationPayload buildTransactionInformationPayload(PsiMethod method) {
         TransactionInformationPayload payload = new TransactionInformationPayload();
         Map<String, String> transactionalArgs = searchTransactionalData(method);
         payload.setClassName(PsiMethodUtils.getClassName(method));
@@ -154,7 +156,12 @@ public final class TransactionSearcherService implements Disposable {
         return payload;
     }
 
-    private Map<String, String> searchTransactionalData(PsiMethod method) {
+    private static Map<String, String> searchTransactionalData(PsiMethod method) {
+        PsiAnnotation annotation = getAnyLevelTransactionalAnnotation(method);
+        return parseAnnotationArgs(annotation);
+    }
+
+    private static PsiAnnotation getAnyLevelTransactionalAnnotation(PsiMethod method) {
         PsiAnnotation annotation = method.getModifierList().findAnnotation(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME);
         if (annotation == null) { // Searching less prior Class-level annotations
             PsiClass containingClass = method.getContainingClass();
@@ -163,7 +170,7 @@ public final class TransactionSearcherService implements Disposable {
                         .map(t -> t.findAnnotation(TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME)).orElse(null);
             }
         }
-        return parseAnnotationArgs(annotation);
+        return annotation;
     }
 
     private void cacheEvict() {

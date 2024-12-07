@@ -13,7 +13,7 @@ import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
-import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
@@ -23,12 +23,12 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
 
     private static final Logger LOG = Logger.getInstance(NeverPropagationInspection.class);
 
-    private TransactionSearcherService transactionSearcherService;
+    private TransactionalSearcherService transactionalSearcherService;
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         Project project = holder.getProject();
-        transactionSearcherService = project.getService(TransactionSearcherService.class);
+        transactionalSearcherService = project.getService(TransactionalSearcherService.class);
         return new JavaElementVisitor() {
             @Override
             public void visitMethod(@NotNull PsiMethod method) {
@@ -36,7 +36,7 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
                 List<PsiAnnotation> annotations = PsiAnnotationUtils.getMethodLevelAndClassLevelAnnotations(method);
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.NEVER)) {
-                        Node<TransactionInformationPayload> tree = transactionSearcherService.buildUsageTreeWithBenchmarking(method);
+                        Node<TransactionInformationPayload> tree = transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
                             LOG.warn("NeverPropagationInspection ping");
                             holder.registerProblem(annotation,

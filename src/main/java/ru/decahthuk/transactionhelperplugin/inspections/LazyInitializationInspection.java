@@ -14,9 +14,9 @@ import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
-import ru.decahthuk.transactionhelperplugin.service.EntityMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
-import ru.decahthuk.transactionhelperplugin.service.TransactionSearcherService;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
 
@@ -26,13 +26,13 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
 
     private static final Logger LOG = Logger.getInstance(LazyInitializationInspection.class);
 
-    private TransactionSearcherService transactionSearcherService;
+    private TransactionalSearcherService transactionalSearcherService;
     private EntitySearcherService entitySearcherService;
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         Project project = holder.getProject();
-        transactionSearcherService = project.getService(TransactionSearcherService.class);
+        transactionalSearcherService = project.getService(TransactionalSearcherService.class);
         entitySearcherService = project.getService(EntitySearcherService.class);
         return new JavaElementVisitor() {
             @Override
@@ -44,11 +44,11 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                 if (methodName != null && methodName.startsWith(Constants.GETTER_PREFIX)) {
                     Map<String, EntityClassInformation> entityClassInformationMap =
                             entitySearcherService.getEntityClassesInformation();
-                    boolean lazyCall = EntityMethodAnalyzer.isCallALazyInitializedEntity(entityClassInformationMap, call);
+                    boolean lazyCall = TransactionalMethodAnalyzer.isCallALazyInitializedEntity(entityClassInformationMap, call);
                     if (lazyCall) {
                         PsiMethod method = call.resolveMethod();
                         Node<TransactionInformationPayload> transactionInformationPayload =
-                                transactionSearcherService.buildUsageTreeWithBenchmarking(method);
+                                transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (TransactionalTreeAnalyzer.treeBranchContainsNoTransaction(transactionInformationPayload)) {
                             LOG.warn("LazyInitializationInspection ping");
                             holder.registerProblem(call,
