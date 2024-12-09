@@ -24,10 +24,8 @@ import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -35,9 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.parseAnnotationArgs;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TEST_CLASS_POSTFIX;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
+import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.parseAnnotationArgs;
 
 @Slf4j
 @Service(Service.Level.PROJECT)
@@ -45,13 +43,10 @@ public final class TransactionalSearcherService implements Disposable {
 
     private static final Logger LOG = Logger.getInstance(TransactionalSearcherService.class);
 
-    private final Project project;
-
     private final Lock lock = new ReentrantLock();
     private final Map<String, Node<TransactionInformationPayload>> cache = new HashMap<>();
 
     public TransactionalSearcherService(Project project) {
-        this.project = project;
         PsiManager manager = PsiManager.getInstance(project);
         manager.addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
