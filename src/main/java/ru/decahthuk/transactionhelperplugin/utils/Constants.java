@@ -1,9 +1,12 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
+import com.github.weisj.jsvg.S;
+
 import java.util.List;
 
 public final class Constants {
 
+    public static final String AUTOWIRED_ANNOTATION_QUALIFIED_NAME = "org.springframework.beans.factory.annotation.Autowired";
     public static final String TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME = "org.springframework.transaction.annotation.Transactional";
     public static final List<String> ENTITY_ANNOTATION_QUALIFIED_NAMES =
             List.of("jakarta.persistence.Entity", "javax.persistence.Entity");
@@ -14,6 +17,7 @@ public final class Constants {
             "javax.persistence.ManyToOne", "javax.persistence.ManyToMany", "javax.persistence.ElementCollection", "jakarta.persistence.OneToOne",
             "jakarta.persistence.OneToMany", "jakarta.persistence.ManyToOne", "jakarta.persistence.ManyToMany", "jakarta.persistence.ElementCollection");
     public static final String GETTER_PREFIX = "get";
+    public static final String SELF_WIRED_FIELD_NAME = "self";
 
     private Constants() {
     }

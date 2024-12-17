@@ -9,6 +9,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.inspections.quickFix.TransactionalSelfInvocationQuickFix;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
 
 public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocalInspectionTool {
@@ -27,7 +28,8 @@ public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocal
                     if (TransactionalMethodAnalyzer.methodsAreTransactionalSelfInvoked(calledMethod, methodThatCalls)) {
                         LOG.warn("TransactionalSelfInvocationInspection ping");
                         holder.registerProblem(call,
-                                InspectionBundle.message("inspection.method.transactional.self.invocation.descriptor"));
+                                InspectionBundle.message("inspection.method.transactional.self.invocation.descriptor"),
+                                new TransactionalSelfInvocationQuickFix());
                     }
                 }
             }
