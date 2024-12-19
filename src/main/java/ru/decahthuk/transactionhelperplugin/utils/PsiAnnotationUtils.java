@@ -65,6 +65,6 @@ public final class PsiAnnotationUtils {
         return Optional.ofNullable(psiNameValuePair)
                 .map(PsiNameValuePair::getValue)
                 .map(PsiAnnotationMemberValue::getText)
-                .orElse(null);
+                .orElse("");
     }
 }

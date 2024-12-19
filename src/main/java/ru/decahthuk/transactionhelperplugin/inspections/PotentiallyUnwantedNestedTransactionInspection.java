@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.inspections.quickFix.PropagationQuickFix;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
@@ -40,7 +41,8 @@ public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBase
                         if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
                             LOG.warn("PotentiallyUnwantedNestedTransactionInspection ping");
                             holder.registerProblem(annotation,
-                                    InspectionBundle.message("inspection.transaction.nested.descriptor"));
+                                    InspectionBundle.message("inspection.transaction.nested.descriptor"),
+                                    new PropagationQuickFix());
                         }
                     }
                 }
