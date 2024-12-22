@@ -7,17 +7,25 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiExpression;
+import com.intellij.psi.PsiLambdaExpression;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
+import com.intellij.psi.PsiType;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.PluginDisposable;
+import ru.decahthuk.transactionhelperplugin.model.LambdaReferenceInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
@@ -27,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,15 +117,15 @@ public final class TransactionalSearcherService implements Disposable {
     }
 
     private Node<TransactionInformationPayload> buildUsageTreeInner(
-            PsiMethod method, AtomicInteger methodCounter, Node<TransactionInformationPayload> rootNode) {
+            PsiMethod method, AtomicInteger methodCounter, Node<TransactionInformationPayload> parentNode) {
         String classMethodName = PsiMethodUtils.getUniqueClassMethodName(method);
         if (cache.containsKey(classMethodName)) {
             Node<TransactionInformationPayload> cachedValue = cache.get(classMethodName);
-            Optional.ofNullable(rootNode).ifPresent(t -> t.addChild(cachedValue));
+            Optional.ofNullable(parentNode).ifPresent(t -> t.addChild(cachedValue));
             return cachedValue;
         }
-        Node<TransactionInformationPayload> newNode = new Node<>(buildTransactionInformationPayload(method), rootNode);
-        Optional.ofNullable(rootNode).ifPresent(t -> t.addChild(newNode));
+        Node<TransactionInformationPayload> newNode = new Node<>(buildTransactionInformationPayload(method), parentNode);
+        Optional.ofNullable(parentNode).ifPresent(t -> t.addChild(newNode));
         cache.put(classMethodName, newNode);
 
         if (methodCounter != null) {
@@ -129,12 +138,20 @@ public final class TransactionalSearcherService implements Disposable {
         query.forEach(reference -> {
             PsiElement element = reference.getElement();
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
-            if (containingMethod != null && !visitedMethods.contains(containingMethod)) {
+            if (containingMethod != null) {
                 PsiClass containingClass = containingMethod.getContainingClass();
                 // Excluding test classes. May make mechanism better
                 if (containingClass == null || !String.valueOf(containingClass.getQualifiedName()).endsWith(TEST_CLASS_POSTFIX)) {
+                    checkLambdaReference(element).ifPresent(t -> Optional.ofNullable(parentNode)
+                            .ifPresent(pN -> pN.getData().addLambdaReference(t)));
+                    if (!isCorrectSelfInvocation(method, containingMethod, element)) {
+                        Optional.ofNullable(parentNode).ifPresent(t -> t.getData()
+                                .addIncorrectSelfInvocation(PsiMethodUtils.getUniqueClassMethodName(containingMethod)));
+                    }
                     visitedMethods.add(containingMethod);
-                    buildUsageTreeInner(containingMethod, methodCounter, newNode);
+                    if (!visitedMethods.contains(containingMethod)) {
+                        buildUsageTreeInner(containingMethod, methodCounter, newNode);
+                    }
                 }
             }
         });
@@ -145,10 +162,52 @@ public final class TransactionalSearcherService implements Disposable {
         TransactionInformationPayload payload = new TransactionInformationPayload();
         Map<String, String> transactionalArgs = searchTransactionalData(method);
         payload.setClassName(PsiMethodUtils.getClassName(method));
-        payload.setMethodIdentifier(PsiMethodUtils.getClassLevelUniqueMethodName(method));
+        payload.setMethodIdentifier(PsiMethodUtils.getUniqueClassMethodName(method));
         payload.setTransactional(transactionalArgs != null);
         payload.setArgs(transactionalArgs);
         return payload;
+    }
+
+    private static boolean isCorrectSelfInvocation(PsiMethod calledMethod, PsiMethod containingMethod, PsiElement reference) {
+        PsiClass calledMethodContainingClass = calledMethod.getContainingClass();
+        PsiClass containingMethodContainingClass = containingMethod.getContainingClass();
+        if (calledMethodContainingClass != null && Objects.equals(calledMethodContainingClass, containingMethodContainingClass)) {
+            PsiMethodCallExpression call = PsiTreeUtil.getParentOfType(reference, PsiMethodCallExpression.class);
+            if (call != null) {
+                PsiExpression expression = call.getMethodExpression().getQualifierExpression();
+                if (expression != null) {
+                    PsiType psiType = expression.getType();
+                    if (psiType instanceof PsiClassReferenceType psiClassReferenceType) {
+                        PsiClass methodContainer = psiClassReferenceType.resolve();
+                        if (methodContainer != null && methodContainer.getQualifiedName() != null) {
+                            return Objects.equals(methodContainer.getQualifiedName(),
+                                    containingMethod.getContainingClass().getQualifiedName());
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static Optional<LambdaReferenceInformation> checkLambdaReference(PsiElement reference) {
+        PsiLambdaExpression lambdaExpression = PsiTreeUtil.getParentOfType(reference, PsiLambdaExpression.class);
+        if (lambdaExpression != null) {
+            PsiMethodCallExpression lambdaInvokerCall = PsiTreeUtil.getParentOfType(lambdaExpression, PsiMethodCallExpression.class);
+            if (lambdaInvokerCall != null) {
+                PsiMethod lambdaInvokerMethod = lambdaInvokerCall.resolveMethod();
+                if (lambdaInvokerMethod != null) {
+                    Map<String, String> transactionalArgs = searchTransactionalData(lambdaInvokerMethod);
+                    return Optional.of(new LambdaReferenceInformation(
+                            PsiMethodUtils.getUniqueClassMethodName(lambdaInvokerMethod),
+                            transactionalArgs != null,
+                            transactionalArgs
+                    ));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private static Map<String, String> searchTransactionalData(PsiMethod method) {

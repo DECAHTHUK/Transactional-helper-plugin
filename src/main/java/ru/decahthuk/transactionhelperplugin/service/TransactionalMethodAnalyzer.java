@@ -2,8 +2,10 @@ package ru.decahthuk.transactionhelperplugin.service;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiLambdaExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -26,18 +28,20 @@ public final class TransactionalMethodAnalyzer {
     }
 
     public static boolean methodCallExpressionIsClassLevelInvocation(@NotNull PsiMethodCallExpression expression) {
-        PsiMethod method = expression.resolveMethod();
-        if (method != null) {
-            PsiClass containingClass = method.getContainingClass();
-            if (containingClass != null) {
-                PsiElement context = expression.getParent();
-                while (context != null && !(context instanceof PsiClass)) {
-                    context = context.getParent();
+        PsiMethod calledMethod = expression.resolveMethod();
+        if (calledMethod != null) {
+            PsiClass calledMethodContainingClass = calledMethod.getContainingClass();
+            PsiClass callerMethodContainingClass = PsiTreeUtil.getParentOfType(expression, PsiClass.class);
+            if (calledMethodContainingClass != null && callerMethodContainingClass != null) {
+                if (callerMethodContainingClass.equals(calledMethodContainingClass)) {
+                    PsiLambdaExpression lambdaExpression = PsiTreeUtil.getParentOfType(expression, PsiLambdaExpression.class);
+                    if (lambdaExpression != null) {
+                        PsiMethodCallExpression lambdaMethodCallExpression = PsiTreeUtil.getParentOfType(lambdaExpression, PsiMethodCallExpression.class);
+                        return lambdaMethodCallExpression == null;
+                    }
+                    return true;
                 }
-                if (context != null) {
-                    PsiClass contextClass = (PsiClass) context;
-                    return containingClass.equals(contextClass);
-                }
+
             }
         }
         return false;

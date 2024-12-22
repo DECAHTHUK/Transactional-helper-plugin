@@ -1,7 +1,5 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
-import com.github.weisj.jsvg.S;
-
 import java.util.List;
 
 public final class Constants {

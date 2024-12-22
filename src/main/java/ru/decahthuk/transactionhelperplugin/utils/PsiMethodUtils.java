@@ -12,7 +12,16 @@ public final class PsiMethodUtils {
     private PsiMethodUtils() {
     }
 
-    public static String getClassLevelUniqueMethodName(PsiMethod method) {
+    public static String getClassName(PsiMethod method) {
+        return Optional.ofNullable(method.getContainingClass())
+                .map(PsiClass::getQualifiedName).orElse("null");
+    }
+
+    public static String getUniqueClassMethodName(PsiMethod method) {
+        return getClassName(method) + "." + getClassLevelUniqueMethodName(method);
+    }
+
+    private static String getClassLevelUniqueMethodName(PsiMethod method) {
         String methodName = method.getName();
 
         PsiParameter[] parameters = method.getParameterList().getParameters();
@@ -26,14 +35,5 @@ public final class PsiMethodUtils {
         }
 
         return methodName + "(" + parameterTypes + ")";
-    }
-
-    public static String getClassName(PsiMethod method) {
-        return Optional.ofNullable(method.getContainingClass())
-                .map(PsiClass::getQualifiedName).orElse("null");
-    }
-
-    public static String getUniqueClassMethodName(PsiMethod method) {
-        return getClassName(method) + "." + getClassLevelUniqueMethodName(method);
     }
 }

@@ -27,6 +27,8 @@ public final class TransactionalTreeAnalyzer {
         return treeContainsUpperLevelTransactional(tree, true);
     }
 
+    //TODO: ПЕРЕДЕЛАТЬ ЭТИ МЕТОДЫ, ЧТОБЫ СМОТРЕТЬ ИЗ CHILD НА PARENT. ЭТО УПРОСТИТ РАБОТУ С РЕФЕРЕНСАМИ И СЕЛФАМИ
+
     /**
      * Searches if there is any parent transaction
      *
@@ -45,19 +47,21 @@ public final class TransactionalTreeAnalyzer {
             TransactionInformationPayload childData = child.getData();
             boolean classLevelInvocationConcrete = calculateClassLevelInvocation(currentData, childData, classLevelInvocation);
             if (!classLevelInvocationConcrete && childData.isTransactional()) {
-                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
-                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
-                    continue;
-                }
-                if (propagation == TransactionalPropagation.NEVER) {
-                    return false;
-                }
-                if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
-                    return true;
+                if (!allCallsAreIncorrectlySelfInvoked(childData, child.isLeaf() ? -1 : child.getChildren().size())) {
+                    TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
+                    if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                        continue;
+                    }
+                    if (propagation == TransactionalPropagation.NEVER) {
+                        return false;
+                    }
+                    if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
+                        return true;
+                    }
                 }
             }
-            boolean mid = treeContainsUpperLevelTransactional(child, classLevelInvocationConcrete);
-            if (mid) {
+            boolean lowerLevel = treeContainsUpperLevelTransactional(child, classLevelInvocationConcrete);
+            if (lowerLevel) {
                 return true;
             }
         }
@@ -75,20 +79,26 @@ public final class TransactionalTreeAnalyzer {
             TransactionInformationPayload childData = child.getData();
             boolean classLevelInvocationConcrete = calculateClassLevelInvocation(currentData, childData, classLevelInvocation);
             if (!classLevelInvocationConcrete && childData.isTransactional()) {
-                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
-                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
-                    return true;
-                }
-                if (propagation == TransactionalPropagation.NEVER) {
-                    return true;
-                }
-                if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
-                    continue;
+                if (!allCallsAreIncorrectlySelfInvoked(childData, child.isLeaf() ? -1 : child.getChildren().size())) {
+                    TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
+                    if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                        return true;
+                    }
+                    if (propagation == TransactionalPropagation.NEVER) {
+                        return true;
+                    }
+                    if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
+                        continue;
+                    }
                 }
             }
             return treeBranchContainsNoTransaction(child, classLevelInvocationConcrete);
         }
         return false;
+    }
+
+    private static boolean allCallsAreIncorrectlySelfInvoked(TransactionInformationPayload childData, int callsSize) {
+        return childData.getIncorrectSelfInvocationsContainingMethodsList().size() == callsSize;
     }
 
     private static boolean calculateClassLevelInvocation(TransactionInformationPayload currentData, TransactionInformationPayload childData,
@@ -97,7 +107,7 @@ public final class TransactionalTreeAnalyzer {
             String currentClassName = currentData.getClassName();
             String childClassName = childData.getClassName();
             if (!currentClassName.equals(childClassName)) {
-                return false;
+                return currentData.isMethodIsIncorrectlySelfInvokedFromMethodWithName(childClassName);
             }
         }
         return classLevelInvocation;
