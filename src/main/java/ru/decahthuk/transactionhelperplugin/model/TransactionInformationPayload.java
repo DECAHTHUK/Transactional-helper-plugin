@@ -66,6 +66,10 @@ public class TransactionInformationPayload {
         return incorrectSelfInvocationsContainingMethodsList.contains(containingMethod);
     }
 
+    public boolean isMethodIsIncorrectlySelfInvokedFromMethod(TransactionInformationPayload payload) {
+        return incorrectSelfInvocationsContainingMethodsList.contains(payload.getMethodIdentifier());
+    }
+
     public boolean hasProblemsWithSelfInvocation() {
         return !incorrectSelfInvocationsContainingMethodsList.isEmpty();
     }

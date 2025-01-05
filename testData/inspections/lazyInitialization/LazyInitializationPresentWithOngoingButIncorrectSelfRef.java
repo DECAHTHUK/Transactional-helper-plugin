@@ -14,10 +14,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.util.List;
 
-public class LazyInitializationPresentWithOngoing {
+public class LazyInitializationPresentWithOngoingButIncorrectSelfRef {
+
+    public void outerMethod() {
+        outerMethodTransactional();
+    }
 
     @Transactional
-    public void outerMethod() {
+    public void outerMethodTransactional() {
         OtherClass otherClass = new OtherClass();
         otherClass.innerMethod();
     }
@@ -27,7 +31,7 @@ class OtherClass {
 
     public void innerMethod() {
         TestEntity testEntity = new TestEntity();
-        testEntity.getUserIds();
+        <warning descr="Getter call on a lazy initialized class without session. Make sure you are calling @Id getter or the class is initialized.">testEntity.getUserIds()</warning>;
     }
 }
 

@@ -16,7 +16,7 @@ public class TransactionalSelfInvocationInspectionTest extends BaseTransactional
     }
 
     public void testTransactionalSelfInvocation_withNoOngoingTransaction() {
-        myFixture.configureByFile("TransactionalSelfInvocationPresentWithoutOngoing.java");
+        myFixture.configureByFile("TransactionalSelfInvocationPresentWithNoOngoing.java");
         myFixture.checkHighlighting();
     }
 
@@ -26,7 +26,7 @@ public class TransactionalSelfInvocationInspectionTest extends BaseTransactional
     }
 
     public void testTransactionalSelfInvocationNotPresent_withNoOngoingTransaction() {
-        myFixture.configureByFile("TransactionalSelfInvocationNotPresentWithoutOngoing.java");
+        myFixture.configureByFile("TransactionalSelfInvocationNotPresentWithNoOngoing.java");
         myFixture.checkHighlighting();
     }
 
@@ -36,7 +36,12 @@ public class TransactionalSelfInvocationInspectionTest extends BaseTransactional
     }
 
     public void testTransactionalSelfInvocationMultiple_withNoOngoingTransaction() {
-        myFixture.configureByFile("TransactionalSelfInvocationMultiplePresentWithoutOngoing.java");
+        myFixture.configureByFile("TransactionalSelfInvocationMultiplePresentWithNoOngoing.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testTransactionalSelfInvocationMultiple_withNoOngoingTransaction_butCorrectSelfReference() {
+        myFixture.configureByFile("TransactionalSelfInvocationPresentWithNoOngoingButCorrectSelfRef.java");
         myFixture.checkHighlighting();
     }
 

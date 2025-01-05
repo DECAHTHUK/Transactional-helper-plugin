@@ -49,5 +49,15 @@ public class PotentiallyUnwantedNestedTransactionInspectionTest extends BaseTran
         myFixture.configureByFile("ClassLevelNestedRequiresNewWithOngoing.java");
         myFixture.checkHighlighting();
     }
+
+    public void testNestedRequiresNewClass_withOngoingTransaction_butIncorrectSelfReference() {
+        myFixture.configureByFile("NestedRequiresNewWithOngoingButIncorrectSelfRef.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testNestedRequiresNewClass_withOngoingTransaction_butCorrectSelfReference() {
+        myFixture.configureByFile("NestedRequiresNewWithOngoingButCorrectSelfRef.java");
+        myFixture.checkHighlighting();
+    }
 }
 

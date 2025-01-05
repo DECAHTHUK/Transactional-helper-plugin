@@ -1,16 +1,14 @@
 package ru.decahthuk.transactionhelperplugin.service;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiLambdaExpression;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
 import java.util.Map;
+import java.util.Objects;
 
 public final class TransactionalMethodAnalyzer {
 
@@ -27,24 +25,54 @@ public final class TransactionalMethodAnalyzer {
         return null;
     }
 
-    public static boolean methodCallExpressionIsClassLevelInvocation(@NotNull PsiMethodCallExpression expression) {
+    public static boolean methodCallExpressionIsIncorrectClassLevelInvocation(@NotNull PsiElement reference) {
+        PsiMethodCallExpression call = PsiTreeUtil.getParentOfType(reference, PsiMethodCallExpression.class);
+        if (call != null) {
+            return methodCallExpressionIsIncorrectClassLevelInvocation(call);
+        }
+        return false;
+    }
+
+    public static boolean methodCallExpressionIsIncorrectClassLevelInvocation(@NotNull PsiMethodCallExpression expression) {
         PsiMethod calledMethod = expression.resolveMethod();
         if (calledMethod != null) {
             PsiClass calledMethodContainingClass = calledMethod.getContainingClass();
             PsiClass callerMethodContainingClass = PsiTreeUtil.getParentOfType(expression, PsiClass.class);
-            if (calledMethodContainingClass != null && callerMethodContainingClass != null) {
-                if (callerMethodContainingClass.equals(calledMethodContainingClass)) {
-                    PsiLambdaExpression lambdaExpression = PsiTreeUtil.getParentOfType(expression, PsiLambdaExpression.class);
-                    if (lambdaExpression != null) {
-                        PsiMethodCallExpression lambdaMethodCallExpression = PsiTreeUtil.getParentOfType(lambdaExpression, PsiMethodCallExpression.class);
-                        return lambdaMethodCallExpression == null;
-                    }
-                    return true;
-                }
-
+            if (calledMethodContainingClass != null && Objects.equals(calledMethodContainingClass, callerMethodContainingClass)) {
+                return methodCallIsIncorrectlySelfInvoked(expression, callerMethodContainingClass) &&
+                        !lambdaReferencePresent(callerMethodContainingClass, calledMethodContainingClass, expression);
             }
         }
         return false;
+    }
+
+    private static boolean lambdaReferencePresent(@NotNull PsiClass callerMethodContainingClass,
+                                                  @NotNull PsiClass calledMethodContainingClass,
+                                                  @NotNull PsiMethodCallExpression expression) {
+        if (callerMethodContainingClass.equals(calledMethodContainingClass)) {
+            PsiLambdaExpression lambdaExpression = PsiTreeUtil.getParentOfType(expression, PsiLambdaExpression.class);
+            if (lambdaExpression != null) {
+                PsiMethodCallExpression lambdaMethodCallExpression = PsiTreeUtil.getParentOfType(lambdaExpression, PsiMethodCallExpression.class);
+                return lambdaMethodCallExpression != null;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private static boolean methodCallIsIncorrectlySelfInvoked(@NotNull PsiMethodCallExpression call, @NotNull PsiClass containingClass) {
+        PsiExpression expression = call.getMethodExpression().getQualifierExpression();
+        if (expression != null) {
+            PsiType psiType = expression.getType();
+            if (psiType instanceof PsiClassReferenceType psiClassReferenceType) {
+                PsiClass methodContainer = psiClassReferenceType.resolve();
+                if (methodContainer != null && methodContainer.getQualifiedName() != null) {
+                    return !Objects.equals(methodContainer.getQualifiedName(),
+                            containingClass.getQualifiedName());
+                }
+            }
+        }
+        return true;
     }
 
     public static boolean methodsAreTransactionalSelfInvoked(PsiMethod calledMethod, PsiMethod methodThatCalls) {

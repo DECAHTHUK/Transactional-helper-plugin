@@ -1,6 +1,6 @@
 package ru.decahthuk.transactionhelperplugin.service;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
@@ -13,103 +13,113 @@ public final class TransactionalTreeAnalyzer {
     private TransactionalTreeAnalyzer() {
     }
 
-    public static boolean treeBranchContainsNoTransaction(Node<TransactionInformationPayload> tree) {
-        return treeBranchContainsNoTransaction(tree, true);
-    }
-
-    /**
-     * Searches if there is any parent transaction
-     *
-     * @param tree - tree of calls
-     * @return - there is higher level transaction going on
-     */
-    public static boolean treeContainsUpperLevelTransactional(Node<TransactionInformationPayload> tree) {
-        return treeContainsUpperLevelTransactional(tree, true);
-    }
-
-    //TODO: ПЕРЕДЕЛАТЬ ЭТИ МЕТОДЫ, ЧТОБЫ СМОТРЕТЬ ИЗ CHILD НА PARENT. ЭТО УПРОСТИТ РАБОТУ С РЕФЕРЕНСАМИ И СЕЛФАМИ
-
-    /**
-     * Searches if there is any parent transaction
-     *
-     * @param tree - tree of calls
-     * @param classLevelInvocation - indicator that method caller is in the same class (proxy won't work). Default true
-     * @return - there is higher level transaction going on
-     */
-    private static boolean treeContainsUpperLevelTransactional(Node<TransactionInformationPayload> tree,
-                                                              boolean classLevelInvocation) {
-        Set<Node<TransactionInformationPayload>> children = tree.getChildren();
-        if (CollectionUtils.isEmpty(tree.getChildren())) {
-            return false;
+    @Nullable
+    public static Boolean treeContainsUpperLevelTransactionalWithoutCurrent(Node<TransactionInformationPayload> called) {
+        if (called.isLeaf()) {
+            return null;
         }
-        TransactionInformationPayload currentData = tree.getData();
-        for (Node<TransactionInformationPayload> child : children) {
-            TransactionInformationPayload childData = child.getData();
-            boolean classLevelInvocationConcrete = calculateClassLevelInvocation(currentData, childData, classLevelInvocation);
-            if (!classLevelInvocationConcrete && childData.isTransactional()) {
-                if (!allCallsAreIncorrectlySelfInvoked(childData, child.isLeaf() ? -1 : child.getChildren().size())) {
-                    TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
-                    if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
-                        continue;
-                    }
-                    if (propagation == TransactionalPropagation.NEVER) {
-                        return false;
-                    }
-                    if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
-                        return true;
-                    }
-                }
-            }
-            boolean lowerLevel = treeContainsUpperLevelTransactional(child, classLevelInvocationConcrete);
-            if (lowerLevel) {
+        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
+        for (Node<TransactionInformationPayload> caller : callers) {
+            boolean branch = treeContainsUpperLevelTransactional(caller);
+            if (branch) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean treeBranchContainsNoTransaction(Node<TransactionInformationPayload> tree,
-                                                               boolean classLevelInvocation) {
-        Set<Node<TransactionInformationPayload>> children = tree.getChildren();
-        if (CollectionUtils.isEmpty(tree.getChildren())) {
-            return true;
+    /**
+     * Searches if there is any parent transaction
+     *
+     * @param called - tree of calls (called method should be passed)
+     * @return - there is higher level transaction going on
+     */
+    private static boolean treeContainsUpperLevelTransactional(Node<TransactionInformationPayload> called) {
+        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
+        TransactionInformationPayload calledData = called.getData();
+        if (called.isLeaf()) {
+            TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+            if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                return false;
+            }
+            if (propagation == TransactionalPropagation.NEVER) {
+                return false;
+            }
+            return calledData.isTransactional() && !TransactionalPropagation.SUPPORTS.equals(propagation);
         }
-        TransactionInformationPayload currentData = tree.getData();
-        for (Node<TransactionInformationPayload> child : children) {
-            TransactionInformationPayload childData = child.getData();
-            boolean classLevelInvocationConcrete = calculateClassLevelInvocation(currentData, childData, classLevelInvocation);
-            if (!classLevelInvocationConcrete && childData.isTransactional()) {
-                if (!allCallsAreIncorrectlySelfInvoked(childData, child.isLeaf() ? -1 : child.getChildren().size())) {
-                    TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(childData.getArgs());
-                    if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
-                        return true;
-                    }
-                    if (propagation == TransactionalPropagation.NEVER) {
-                        return true;
-                    }
-                    if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
-                        continue;
-                    }
+        for (Node<TransactionInformationPayload> caller : callers) {
+            TransactionInformationPayload callerData = caller.getData();
+            if (calledData.isTransactional() && !calledData.isMethodIsIncorrectlySelfInvokedFromMethod(callerData)) {
+                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                    continue;
+                }
+                if (propagation == TransactionalPropagation.NEVER) {
+                    return false;
+                }
+                if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
+                    return true;
                 }
             }
-            return treeBranchContainsNoTransaction(child, classLevelInvocationConcrete);
+            if (treeContainsUpperLevelTransactional(caller)) {
+                return true;
+            }
         }
         return false;
     }
 
-    private static boolean allCallsAreIncorrectlySelfInvoked(TransactionInformationPayload childData, int callsSize) {
-        return childData.getIncorrectSelfInvocationsContainingMethodsList().size() == callsSize;
-    }
-
-    private static boolean calculateClassLevelInvocation(TransactionInformationPayload currentData, TransactionInformationPayload childData,
-                                                         boolean classLevelInvocation) {
-        if (classLevelInvocation) {
-            String currentClassName = currentData.getClassName();
-            String childClassName = childData.getClassName();
-            if (!currentClassName.equals(childClassName)) {
-                return currentData.isMethodIsIncorrectlySelfInvokedFromMethodWithName(childClassName);
+    @Nullable
+    public static Boolean treeBranchContainsNoTransactionWithoutCurrent(Node<TransactionInformationPayload> called) {
+        if (called.isLeaf()) {
+            return null;
+        }
+        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
+        for (Node<TransactionInformationPayload> caller : callers) {
+            boolean branch = treeBranchContainsNoTransaction(caller);
+            if (branch) {
+                return true;
             }
         }
-        return classLevelInvocation;
+        return false;
+    }
+
+    /**
+     * Searches if there is any branch with no ongoing transaction
+     *
+     * @param called - tree of calls (called method should be passed)
+     * @return - boolean value if the branch with no ongoing is present
+     */
+    private static boolean treeBranchContainsNoTransaction(Node<TransactionInformationPayload> called) {
+        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
+        TransactionInformationPayload calledData = called.getData();
+        if (called.isLeaf()) {
+            TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+            if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                return true;
+            }
+            if (propagation == TransactionalPropagation.NEVER) {
+                return true;
+            }
+            return !calledData.isTransactional() || TransactionalPropagation.SUPPORTS.equals(propagation);
+        }
+        for (Node<TransactionInformationPayload> caller : callers) {
+            TransactionInformationPayload callerData = caller.getData();
+            if (calledData.isTransactional() && !calledData.isMethodIsIncorrectlySelfInvokedFromMethod(callerData)) {
+                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
+                    return true;
+                }
+                if (propagation == TransactionalPropagation.NEVER) {
+                    return true;
+                }
+                if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
+                    continue;
+                }
+            }
+            if (treeBranchContainsNoTransaction(caller)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
+    implementation("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 // Configure Gradle IntelliJ Plugin

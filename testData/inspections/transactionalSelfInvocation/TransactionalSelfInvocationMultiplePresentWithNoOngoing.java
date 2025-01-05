@@ -1,7 +1,7 @@
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
-public class TransactionalSelfInvocationMultiplePresentWithoutOngoing {
+public class TransactionalSelfInvocationMultiplePresentWithNoOngoing {
 
     public void outerMethod() {
         <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>;
@@ -10,8 +10,9 @@ public class TransactionalSelfInvocationMultiplePresentWithoutOngoing {
             <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod2()</warning>;
         }
         RunnableCallProxy callProxy = new RunnableCallProxy();
-        callProxy.call(() -> <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>);
+        callProxy.call(() -> innerMethod());
     }
+
 
     @Transactional
     public void innerMethod() {

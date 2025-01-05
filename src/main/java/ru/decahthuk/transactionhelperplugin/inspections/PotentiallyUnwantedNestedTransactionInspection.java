@@ -38,7 +38,8 @@ public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBase
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.REQUIRES_NEW)) {
                         Node<TransactionInformationPayload> tree = transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
-                        if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
+                        if (Boolean.TRUE.equals(
+                                TransactionalTreeAnalyzer.treeContainsUpperLevelTransactionalWithoutCurrent(tree))) {
                             LOG.warn("PotentiallyUnwantedNestedTransactionInspection ping");
                             holder.registerProblem(annotation,
                                     InspectionBundle.message("inspection.transaction.nested.descriptor"),

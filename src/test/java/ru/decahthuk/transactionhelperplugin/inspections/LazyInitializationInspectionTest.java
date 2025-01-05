@@ -39,4 +39,14 @@ public class LazyInitializationInspectionTest extends BaseTransactionalInspectio
         myFixture.configureByFile("LazyInitializationPresentDifferentEagerRelationsWithNoOngoing.java");
         myFixture.checkHighlighting();
     }
+
+    public void testLazyInitialization_withOngoingTransaction_butIncorrectSelfReference() {
+        myFixture.configureByFile("LazyInitializationPresentWithOngoingButIncorrectSelfRef.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testLazyInitialization_withOngoingTransaction_butCorrectSelfReference() {
+        myFixture.configureByFile("LazyInitializationPresentWithOngoingButCorrectSelfRef.java");
+        myFixture.checkHighlighting();
+    }
 }

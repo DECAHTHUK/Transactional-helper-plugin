@@ -38,7 +38,8 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.NEVER)) {
                         Node<TransactionInformationPayload> tree = transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
-                        if (TransactionalTreeAnalyzer.treeContainsUpperLevelTransactional(tree)) {
+                        if (Boolean.TRUE.equals(
+                                TransactionalTreeAnalyzer.treeContainsUpperLevelTransactionalWithoutCurrent(tree))) {
                             LOG.warn("NeverPropagationInspection ping");
                             holder.registerProblem(annotation,
                                     InspectionBundle.message("inspection.transaction.never.descriptor"),

@@ -4,18 +4,15 @@ import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaElementVisitor;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiMethodCallExpression;
-import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
-import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
@@ -46,10 +43,11 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                             entitySearcherService.getEntityClassesInformation();
                     boolean lazyCall = TransactionalMethodAnalyzer.isCallALazyInitializedEntity(entityClassInformationMap, call);
                     if (lazyCall) {
-                        PsiMethod method = call.resolveMethod();
+                        PsiMethod method = PsiTreeUtil.getParentOfType(call, PsiMethod.class);
                         Node<TransactionInformationPayload> transactionInformationPayload =
                                 transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
-                        if (TransactionalTreeAnalyzer.treeBranchContainsNoTransaction(transactionInformationPayload)) {
+                        if (Boolean.TRUE.equals(TransactionalTreeAnalyzer
+                                .treeBranchContainsNoTransactionWithoutCurrent(transactionInformationPayload))) {
                             LOG.warn("LazyInitializationInspection ping");
                             holder.registerProblem(call,
                                     InspectionBundle.message("inspection.method.lazy.getter.call.descriptor"));

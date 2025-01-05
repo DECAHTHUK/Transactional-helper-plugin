@@ -45,8 +45,13 @@ public class NeverPropagationInspectionTest extends BaseTransactionalInspectionT
         myFixture.checkHighlighting();
     }
 
-    public void testNeverPropagatedClass_withOngoingTransaction() {
-        myFixture.configureByFile("ClassLevelNeverPropagationWithOngoing.java");
+    public void testNeverPropagatedClass_withOngoingTransaction_butIncorrectSelfReference() {
+        myFixture.configureByFile("NeverPropagationWithOngoingButIncorrectSelfRef.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testNeverPropagatedClass_withOngoingTransaction_butCorrectSelfReference() {
+        myFixture.configureByFile("NeverPropagationWithOngoingButCorrectSelfRef.java");
         myFixture.checkHighlighting();
     }
 }

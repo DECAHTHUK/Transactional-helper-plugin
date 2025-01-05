@@ -22,7 +22,7 @@ public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocal
             @Override
             public void visitMethodCallExpression(@NotNull PsiMethodCallExpression call) {
                 super.visitMethodCallExpression(call);
-                if (TransactionalMethodAnalyzer.methodCallExpressionIsClassLevelInvocation(call)) {
+                if (TransactionalMethodAnalyzer.methodCallExpressionIsIncorrectClassLevelInvocation(call)) {
                     PsiMethod calledMethod = call.resolveMethod();
                     PsiMethod methodThatCalls = TransactionalMethodAnalyzer.getEnclosingMethod(call);
                     if (TransactionalMethodAnalyzer.methodsAreTransactionalSelfInvoked(calledMethod, methodThatCalls)) {

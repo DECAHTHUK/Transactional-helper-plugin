@@ -14,10 +14,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.util.List;
 
-public class LazyInitializationPresentWithOngoing {
+public class LazyInitializationPresentWithOngoingButCorrectSelfRef {
+
+    private LazyInitializationPresentWithOngoingButCorrectSelfRef self;
+
+    public void outerMethod() {
+        self.outerMethodTransactional();
+    }
 
     @Transactional
-    public void outerMethod() {
+    public void outerMethodTransactional() {
         OtherClass otherClass = new OtherClass();
         otherClass.innerMethod();
     }

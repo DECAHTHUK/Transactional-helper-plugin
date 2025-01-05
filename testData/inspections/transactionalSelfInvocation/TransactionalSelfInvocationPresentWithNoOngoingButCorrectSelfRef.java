@@ -1,10 +1,12 @@
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
-public class TransactionalSelfInvocationPresentWithoutOngoing {
+public class TransactionalSelfInvocationPresentWithNoOngoingButCorrectSelfRef {
+
+    private TransactionalSelfInvocationPresentWithNoOngoingButCorrectSelfRef self;
 
     public void outerMethod() {
-        <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>;
+        self.innerMethod();
     }
 
     @Transactional

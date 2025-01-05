@@ -38,7 +38,8 @@ public class MandatoryPropagationInspection extends AbstractBaseJavaLocalInspect
                 for (PsiAnnotation annotation : annotations) {
                     if (PsiAnnotationUtils.annotationIsTransactionalWithPropagation(annotation, TransactionalPropagation.MANDATORY)) {
                         Node<TransactionInformationPayload> tree = transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
-                        if (TransactionalTreeAnalyzer.treeBranchContainsNoTransaction(tree)) {
+                        if (Boolean.TRUE.equals(TransactionalTreeAnalyzer
+                                .treeBranchContainsNoTransactionWithoutCurrent(tree))) {
                             LOG.warn("MandatoryPropagationInspection ping");
                             holder.registerProblem(annotation,
                                     InspectionBundle.message("inspection.transaction.mandatory.descriptor"),
