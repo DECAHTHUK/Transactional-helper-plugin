@@ -47,7 +47,7 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                         Node<TransactionInformationPayload> transactionInformationPayload =
                                 transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (Boolean.TRUE.equals(TransactionalTreeAnalyzer
-                                .treeBranchContainsNoTransactionWithoutCurrent(transactionInformationPayload))) {
+                                .treeBranchContainsNoTransactionWithCurrent(transactionInformationPayload))) {
                             LOG.warn("LazyInitializationInspection ping");
                             holder.registerProblem(call,
                                     InspectionBundle.message("inspection.method.lazy.getter.call.descriptor"));

@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TEST_CLASS_POSTFIX;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
+import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.getPropagationArg;
 import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.parseAnnotationArgs;
 
 @Slf4j
@@ -121,10 +122,11 @@ public final class TransactionalSearcherService implements Disposable {
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (containingMethod != null) {
                 PsiClass containingClass = containingMethod.getContainingClass();
-                // Excluding test classes. May make mechanism better
                 if (containingClass == null || !String.valueOf(containingClass.getQualifiedName()).endsWith(TEST_CLASS_POSTFIX)) {
+                    String containingMethodName = PsiMethodUtils.getUniqueClassMethodName(containingMethod);
+                    newNode.getData().addCall(containingMethodName);
                     checkLambdaReference(element).ifPresent(t -> Optional.of(newNode)
-                            .ifPresent(nN -> nN.getData().addLambdaReference(t)));
+                            .ifPresent(nN -> nN.getData().addLambdaReference(containingMethodName, t)));
                     if (TransactionalMethodAnalyzer.methodCallExpressionIsIncorrectClassLevelInvocation(element)) {
                         Optional.of(newNode).ifPresent(t -> t.getData()
                                 .addIncorrectSelfInvocation(PsiMethodUtils.getUniqueClassMethodName(containingMethod)));
@@ -160,7 +162,7 @@ public final class TransactionalSearcherService implements Disposable {
                     return Optional.of(new LambdaReferenceInformation(
                             PsiMethodUtils.getUniqueClassMethodName(lambdaInvokerMethod),
                             transactionalArgs != null,
-                            transactionalArgs
+                            getPropagationArg(transactionalArgs)
                     ));
                 }
             }

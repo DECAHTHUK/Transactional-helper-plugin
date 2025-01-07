@@ -39,13 +39,13 @@ public final class TransactionalMethodAnalyzer {
             PsiClass calledMethodContainingClass = calledMethod.getContainingClass();
             PsiClass callerMethodContainingClass = PsiTreeUtil.getParentOfType(expression, PsiClass.class);
             if (calledMethodContainingClass != null && Objects.equals(calledMethodContainingClass, callerMethodContainingClass)) {
-                return methodCallIsIncorrectlySelfInvoked(expression, callerMethodContainingClass) &&
-                        !lambdaReferencePresent(callerMethodContainingClass, calledMethodContainingClass, expression);
+                return methodCallIsIncorrectlySelfInvoked(expression, callerMethodContainingClass);
             }
         }
         return false;
     }
 
+    // Rudimentary
     private static boolean lambdaReferencePresent(@NotNull PsiClass callerMethodContainingClass,
                                                   @NotNull PsiClass calledMethodContainingClass,
                                                   @NotNull PsiMethodCallExpression expression) {

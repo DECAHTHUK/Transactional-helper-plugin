@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 
 import java.util.Map;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 public class LambdaReferenceInformation {
 
     /**
-     * Method invoker identifier
+     * Method invoker identifier (lambda)
      */
     private String methodIdentifier;
 
@@ -27,7 +28,7 @@ public class LambdaReferenceInformation {
     private boolean isTransactional;
 
     /**
-     * Transactional params
+     * Propagation (or null if not exists)
      */
-    private Map<String, String> args;
+    private TransactionalPropagation propagation;
 }

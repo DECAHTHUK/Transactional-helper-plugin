@@ -49,4 +49,14 @@ public class LazyInitializationInspectionTest extends BaseTransactionalInspectio
         myFixture.configureByFile("LazyInitializationPresentWithOngoingButCorrectSelfRef.java");
         myFixture.checkHighlighting();
     }
+
+    public void testLazyInitialization_withOngoingTransaction_inLambda() {
+        myFixture.configureByFile("LazyInitializationPresentWithOngoingInLambda.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testLazyInitialization_withNoOngoingTransactionBranch_inLambda() {
+        myFixture.configureByFile("LazyInitializationPresentWithNoOngoingBranchInLambda.java");
+        myFixture.checkHighlighting();
+    }
 }

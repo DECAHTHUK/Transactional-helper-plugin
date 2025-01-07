@@ -14,9 +14,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.util.List;
 
-public class LazyInitializationPresentWithOngoing {
+public class LazyInitializationPresentWithOngoingInLambda {
 
-    @Transactional
+    public void outerMethod() {
+        OtherClass otherClass = new OtherClass();
+        RunnableCallProxyTransactional callProxy = new RunnableCallProxyTransactional();
+        callProxy.call(() -> otherClass.innerMethod());
+        callProxy.callWithProp(() -> otherClass.innerMethod());
+    }
+}
+
+class OtherClass {
+
     public void innerMethod() {
         TestEntity testEntity = new TestEntity();
         testEntity.getUserIds();
@@ -41,5 +50,18 @@ class TestEntity {
 
     public List<Long> getUserIds() {
         return userIds;
+    }
+}
+
+class RunnableCallProxyTransactional {
+
+    @Transactional
+    public void call(Runnable r) {
+        r.run();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void callWithProp(Runnable r) {
+        r.run();
     }
 }

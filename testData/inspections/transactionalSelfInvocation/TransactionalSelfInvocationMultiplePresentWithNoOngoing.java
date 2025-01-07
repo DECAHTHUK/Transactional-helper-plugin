@@ -9,8 +9,6 @@ public class TransactionalSelfInvocationMultiplePresentWithNoOngoing {
         if (!somelogic) {
             <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod2()</warning>;
         }
-        RunnableCallProxy callProxy = new RunnableCallProxy();
-        callProxy.call(() -> innerMethod());
     }
 
 
@@ -22,12 +20,5 @@ public class TransactionalSelfInvocationMultiplePresentWithNoOngoing {
     @Transactional(propagation = Propagation.MANDATORY)
     public void innerMethod2() {
         System.out.println("inner method 2");
-    }
-}
-
-class RunnableCallProxy {
-
-    public void call(Runnable r) {
-        r.run();
     }
 }
