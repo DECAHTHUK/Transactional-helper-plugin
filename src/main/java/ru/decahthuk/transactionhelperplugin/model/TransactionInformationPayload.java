@@ -79,7 +79,7 @@ public class TransactionInformationPayload {
     public boolean anyLambdaReferenceIsNotOfPropagation(String methodIdentifier, TransactionalPropagation propagation) {
         List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
         if (CollectionUtils.isNotEmpty(lambdas)) {
-            if (lambdas.size() != numberOfCallsInsideOfMethod.size()) {
+            if (lambdas.size() != numberOfCallsInsideOfMethod.get(methodIdentifier)) {
                 return true;
             }
             for (LambdaReferenceInformation lambda : lambdas) {
@@ -87,6 +87,21 @@ public class TransactionInformationPayload {
                     return true;
                 }
                 if (lambda.getPropagation() != propagation) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean anyLambdaReferenceIsNotTransactional(String methodIdentifier) {
+        List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
+        if (CollectionUtils.isNotEmpty(lambdas)) {
+            if (lambdas.size() != numberOfCallsInsideOfMethod.get(methodIdentifier)) {
+                return true;
+            }
+            for (LambdaReferenceInformation lambda : lambdas) {
+                if (!lambda.isTransactional()) {
                     return true;
                 }
             }
@@ -119,6 +134,18 @@ public class TransactionInformationPayload {
         return true;
     }
 
+    public boolean noneLambdaReferencesInListOfPropagations(String methodIdentifier, List<TransactionalPropagation> propagations) {
+        List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
+        if (CollectionUtils.isNotEmpty(lambdas)) {
+            for (LambdaReferenceInformation lambda : lambdas) {
+                if (lambda.isTransactional() && propagations.contains(lambda.getPropagation())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean allLambdaReferencesIsOfPropagation(String methodIdentifier, TransactionalPropagation propagation) {
         List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
         if (CollectionUtils.isNotEmpty(lambdas)) {
@@ -135,7 +162,7 @@ public class TransactionInformationPayload {
     public boolean allCallsAreLambdaReferences(String methodIdentifier) {
         List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
         if (CollectionUtils.isNotEmpty(lambdas)) {
-            return lambdas.size() == numberOfCallsInsideOfMethod.size();
+            return lambdas.size() == numberOfCallsInsideOfMethod.get(methodIdentifier);
         }
         return false;
     }

@@ -1,5 +1,7 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
+import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
+
 import java.util.List;
 
 public final class Constants {
@@ -16,6 +18,8 @@ public final class Constants {
             "jakarta.persistence.OneToMany", "jakarta.persistence.ManyToOne", "jakarta.persistence.ManyToMany", "jakarta.persistence.ElementCollection");
     public static final String GETTER_PREFIX = "get";
     public static final String SELF_WIRED_FIELD_NAME = "self";
+
+    public static final TransactionalPropagation DEFAULT_PROPAGATION = TransactionalPropagation.REQUIRED;
 
     private Constants() {
     }

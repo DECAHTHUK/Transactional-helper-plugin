@@ -16,6 +16,7 @@ import java.util.List;
 
 public class LazyInitializationPresentWithOngoingInLambda {
 
+    @Transactional
     public void outerMethod() {
         OtherClass otherClass = new OtherClass();
         RunnableCallProxyTransactional callProxy = new RunnableCallProxyTransactional();
@@ -55,7 +56,6 @@ class TestEntity {
 
 class RunnableCallProxyTransactional {
 
-    @Transactional
     public void call(Runnable r) {
         r.run();
     }

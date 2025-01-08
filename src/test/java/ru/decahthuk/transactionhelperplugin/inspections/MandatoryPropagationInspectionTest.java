@@ -49,4 +49,14 @@ public class MandatoryPropagationInspectionTest extends BaseTransactionalInspect
         myFixture.configureByFile("MandatoryPropagationWithOngoingButCorrectSelfRef.java");
         myFixture.checkHighlighting();
     }
+
+    public void testMandatoryPropagatedMethod_withOngoingTransaction_inLambda() {
+        myFixture.configureByFile("MandatoryPropagationWithOngoingInLambda.java");
+        myFixture.checkHighlighting();
+    }
+
+    public void testMandatoryPropagatedMethod_withNoOngoingTransaction_inLambda() {
+        myFixture.configureByFile("MandatoryPropagationWithNoOngoingBranchInLambda.java");
+        myFixture.checkHighlighting();
+    }
 }

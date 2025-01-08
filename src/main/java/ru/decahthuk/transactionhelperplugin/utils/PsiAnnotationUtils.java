@@ -46,8 +46,12 @@ public final class PsiAnnotationUtils {
     }
 
     public static TransactionalPropagation getPropagationArg(Map<String, String> args) {
-        if (args != null && args.containsKey(TRANSACTIONAL_PROPAGATION_ARG_NAME)) {
-            return TransactionalPropagation.fromString(args.get(TRANSACTIONAL_PROPAGATION_ARG_NAME));
+        if (args != null) {
+            if (args.containsKey(TRANSACTIONAL_PROPAGATION_ARG_NAME)) {
+                return TransactionalPropagation.fromString(args.get(TRANSACTIONAL_PROPAGATION_ARG_NAME));
+            } else {
+                return Constants.DEFAULT_PROPAGATION;
+            }
         }
         return null;
     }
