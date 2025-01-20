@@ -25,7 +25,8 @@ public class PropagationQuickFix implements LocalQuickFix {
     @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
         PsiElement element = descriptor.getPsiElement();
-        if (element instanceof PsiAnnotation annotation) {
+        if (element instanceof PsiAnnotation) {
+            PsiAnnotation annotation = (PsiAnnotation) element;
             PsiNameValuePair[] attributes = annotation.getParameterList().getAttributes();
             for (PsiNameValuePair attribute : attributes) {
                 if (Constants.TRANSACTIONAL_PROPAGATION_ARG_NAME.equals(attribute.getName())) {

@@ -85,7 +85,8 @@ public final class EntitySearcherService implements Disposable {
                     return;
                 }
                 PsiElement element = event.getFile();
-                if (element instanceof PsiJavaFile psiJavaFile) {
+                if (element instanceof PsiJavaFile) {
+                    PsiJavaFile psiJavaFile = (PsiJavaFile) element;
                     if (cacheContainsModule(psiJavaFile.getPackageName())) {
                         cacheEvict();
                     }

@@ -7,19 +7,20 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class InspectionBundle {
+public final class InspectionBundle extends DynamicBundle{
 
     @NonNls
     public static final String BUNDLE = "messages.InspectionBundle";
 
-    private static final DynamicBundle ourInstance = new DynamicBundle(InspectionBundle.class, BUNDLE);
+    private static final InspectionBundle INSTANCE = new InspectionBundle();
 
     private InspectionBundle() {
+        super(BUNDLE);
     }
 
     public static @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,
                                       Object @NotNull ... params) {
-        return ourInstance.getMessage(key, params);
+        return INSTANCE.getMessage(key, params);
     }
 
 }

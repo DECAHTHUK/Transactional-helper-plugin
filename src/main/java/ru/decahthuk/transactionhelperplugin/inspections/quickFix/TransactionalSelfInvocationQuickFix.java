@@ -34,7 +34,8 @@ public class TransactionalSelfInvocationQuickFix implements LocalQuickFix {
     @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
         PsiElement element = descriptor.getPsiElement();
-        if (element instanceof PsiMethodCallExpression call) {
+        if (element instanceof PsiMethodCallExpression) {
+            PsiMethodCallExpression call = (PsiMethodCallExpression) element;
             PsiClass containingClass = PsiTreeUtil.getParentOfType(call, PsiClass.class);
             if (containingClass != null) {
                 PsiMethod method = call.resolveMethod();

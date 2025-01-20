@@ -30,7 +30,7 @@ public final class PsiMethodUtils {
             PsiType type = parameter.getType();
             parameterTypes.append(type.getCanonicalText()).append(",");
         }
-        if (!parameterTypes.isEmpty()) {
+        if (parameterTypes.length() != 0) {
             parameterTypes.setLength(parameterTypes.length() - 1); // Remove the trailing comma
         }
 

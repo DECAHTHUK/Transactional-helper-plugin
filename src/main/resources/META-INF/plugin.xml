@@ -1,4 +1,4 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+    <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
     <id>ru.decahthuk.TransactionHelperPlugin</id>
@@ -8,7 +8,7 @@
     <name>Spring Transaction Helper</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="sup123.com" url="https://www.132.com">132</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
@@ -79,5 +79,7 @@
                      level="WARNING"
                      implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionalSelfInvocationInspection"/>
 
+    <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                factoryClass="ru.decahthuk.transactionhelperplugin.toolWindow.PluginSettingsToolWindow"/>
     </extensions>
 </idea-plugin>

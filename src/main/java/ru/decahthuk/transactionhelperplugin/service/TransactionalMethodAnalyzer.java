@@ -64,7 +64,8 @@ public final class TransactionalMethodAnalyzer {
         PsiExpression expression = call.getMethodExpression().getQualifierExpression();
         if (expression != null) {
             PsiType psiType = expression.getType();
-            if (psiType instanceof PsiClassReferenceType psiClassReferenceType) {
+            if (psiType instanceof PsiClassReferenceType) {
+                PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiType;
                 PsiClass methodContainer = psiClassReferenceType.resolve();
                 if (methodContainer != null && methodContainer.getQualifiedName() != null) {
                     return !Objects.equals(methodContainer.getQualifiedName(),
