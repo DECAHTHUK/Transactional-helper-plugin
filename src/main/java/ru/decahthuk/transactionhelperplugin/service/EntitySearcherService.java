@@ -132,6 +132,22 @@ public final class EntitySearcherService implements Disposable {
         return entityClassInformationMap;
     }
 
+    public boolean jakartaIsNotPresent() {
+        PsiClass annotationClass = null;
+        for (String name : ENTITY_ANNOTATION_QUALIFIED_NAMES) {
+            if (annotationClass == null) {
+                annotationClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.allScope(project));
+            }
+        }
+
+        if (annotationClass == null) {
+            LOG.warn("There is no javax/jakarta persistence dependency");
+            cacheEvict();
+            return true;
+        }
+        return false;
+    }
+
     private void cacheFieldInformation(PsiField field, PsiAnnotation annotation, String className) {
         EntityClassInformation entityClassInformation = entityClassInformationMap.get(className);
         if (entityClassInformation == null) {
@@ -155,13 +171,9 @@ public final class EntitySearcherService implements Disposable {
                 if (annotationClass == null) {
                     annotationClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.allScope(project));
                 }
-            }
+        }
+            if (annotationClass == null) return; // already evaluated by jakartaIsNotPresent()
 
-            if (annotationClass == null) {
-                LOG.warn("There is no javax/jakarta persistence dependency");
-                cacheEvict();
-                return;
-            }
             Collection<PsiClass> annotatedElements = AnnotatedElementsSearch.searchPsiClasses(
                     annotationClass,
                     GlobalSearchScope.allScope(project)

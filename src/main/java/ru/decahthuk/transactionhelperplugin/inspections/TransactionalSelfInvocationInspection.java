@@ -7,6 +7,7 @@ import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.TransactionalSelfInvocationQuickFix;
@@ -34,5 +35,10 @@ public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocal
                 }
             }
         };
+    }
+
+    @Override
+    public @NonNls @NotNull String getShortName() {
+        return InspectionBundle.message("inspection.method.transactional.self.invocation.short.name");
     }
 }

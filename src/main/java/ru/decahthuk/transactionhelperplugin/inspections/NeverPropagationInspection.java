@@ -8,6 +8,7 @@ import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.PropagationQuickFix;
@@ -49,5 +50,10 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
                 }
             }
         };
+    }
+
+    @Override
+    public @NonNls @NotNull String getShortName() {
+        return InspectionBundle.message("inspection.transaction.never.short.name");
     }
 }

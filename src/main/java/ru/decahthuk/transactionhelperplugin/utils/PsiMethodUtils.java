@@ -21,7 +21,7 @@ public final class PsiMethodUtils {
         return getClassName(method) + "." + getClassLevelUniqueMethodName(method);
     }
 
-    private static String getClassLevelUniqueMethodName(PsiMethod method) {
+    public static String getClassLevelUniqueMethodName(PsiMethod method) {
         String methodName = method.getName();
 
         PsiParameter[] parameters = method.getParameterList().getParameters();

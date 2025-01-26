@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
@@ -31,6 +32,9 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
         Project project = holder.getProject();
         transactionalSearcherService = project.getService(TransactionalSearcherService.class);
         entitySearcherService = project.getService(EntitySearcherService.class);
+        if (entitySearcherService.jakartaIsNotPresent()) {
+            return PsiElementVisitor.EMPTY_VISITOR;
+        }
         return new JavaElementVisitor() {
             @Override
             public void visitMethodCallExpression(@NotNull PsiMethodCallExpression call) {
@@ -56,5 +60,10 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                 }
             }
         };
+    }
+
+    @Override
+    public @NonNls @NotNull String getShortName() {
+        return InspectionBundle.message("inspection.method.lazy.getter.call.short.name");
     }
 }
