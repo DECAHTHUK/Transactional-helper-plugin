@@ -13,28 +13,16 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiRecursiveElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.ColoredSideBorder;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.ui.treeStructure.SimpleTreeStructure;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.ui.treeStructure.treetable.TreeTable;
-import com.intellij.ui.treeStructure.treetable.TreeTableModel;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.decahthuk.transactionhelperplugin.toolWindow.tree.CallTreeCellRenderer;
-import ru.decahthuk.transactionhelperplugin.toolWindow.tree.CallTreeModel;
-import ru.decahthuk.transactionhelperplugin.toolWindow.tree.CallTreeNode;
+import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeDialog;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import javax.swing.*;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,30 +72,35 @@ public class PluginSettingsToolWindow {
     }
 
     private void showTreeWindow(Project project) {
-        JFrame frame = new JFrame("Object Tree");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(400, 300);
-        frame.setLocationRelativeTo(null);
+        List<Navigatable> elements = getNavigatables(project);
+        TransactionalTreeDialog dialog = new TransactionalTreeDialog(elements);
+        dialog.show();
+    }
 
+    private List<Navigatable> getNavigatables(Project project) {
+        List<Navigatable> elements = new ArrayList<>();
+        VirtualFile[] virtualFiles = FileEditorManager.getInstance(project).getSelectedFiles();
+        for (VirtualFile virtualFile : virtualFiles) {
+            if (virtualFile.getFileType() instanceof JavaFileType) {
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+                if (psiFile instanceof PsiJavaFile) {
+                    PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+                    List<PsiMethod> methods = new ArrayList<>();
 
-        // Create the root node
-        CallTreeNode root = new CallTreeNode("Root Method", "Mark");
-
-        // Create child nodes
-        CallTreeNode child1 = new CallTreeNode("Method1", "Mark1");
-        CallTreeNode child2 = new CallTreeNode("Method2", "Mark2");
-        CallTreeNode child3 = new CallTreeNode("Method3", "Mark3");
-
-        root.addChild(child1);
-        root.addChild(child2);
-        root.addChild(child3);
-
-        Tree tree = new Tree(root);
-        tree.setCellRenderer(new CallTreeCellRenderer());
-
-        frame.add(new JScrollPane(tree));
-
-        frame.setVisible(true);
+                    psiJavaFile.accept(new JavaRecursiveElementVisitor() {
+                        @Override
+                        public void visitClass(PsiClass aClass) {
+                            Collections.addAll(methods, aClass.getMethods());
+                            super.visitClass(aClass);
+                        }
+                    });
+                    for (PsiMethod method : methods) {
+                        elements.add((Navigatable) method.getNavigationElement());
+                    }
+                }
+            }
+        }
+        return elements;
     }
 
     private void fillComboBoxData(@NotNull Project project) {
