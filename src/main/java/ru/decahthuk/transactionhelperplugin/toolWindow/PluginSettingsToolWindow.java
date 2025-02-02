@@ -13,19 +13,30 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.SmartPointerManager;
+import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.ui.ColoredSideBorder;
 import com.intellij.ui.JBColor;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.decahthuk.transactionhelperplugin.model.Node;
+import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
 import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeDialog;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class PluginSettingsToolWindow {
 
@@ -62,7 +73,8 @@ public class PluginSettingsToolWindow {
                 }
             });
             viewTreeButton.addActionListener(e -> {
-                showTreeWindow(project);
+                MethodData methodData = (MethodData) classMethodsBox.getSelectedItem();
+                showTreeWindow(project, methodData);
             });
         });
     }
@@ -71,36 +83,11 @@ public class PluginSettingsToolWindow {
         return content;
     }
 
-    private void showTreeWindow(Project project) {
-        List<Navigatable> elements = getNavigatables(project);
-        TransactionalTreeDialog dialog = new TransactionalTreeDialog(elements);
+    private void showTreeWindow(Project project, MethodData methodData) {
+        Node<TransactionInformationPayload> transactionInfo = project.getService(TransactionalSearcherService.class)
+                .buildUsageTree(methodData.getPsiMethodPointer().getElement());
+        TransactionalTreeDialog dialog = new TransactionalTreeDialog(transactionInfo);
         dialog.show();
-    }
-
-    private List<Navigatable> getNavigatables(Project project) {
-        List<Navigatable> elements = new ArrayList<>();
-        VirtualFile[] virtualFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-        for (VirtualFile virtualFile : virtualFiles) {
-            if (virtualFile.getFileType() instanceof JavaFileType) {
-                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-                if (psiFile instanceof PsiJavaFile) {
-                    PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-                    List<PsiMethod> methods = new ArrayList<>();
-
-                    psiJavaFile.accept(new JavaRecursiveElementVisitor() {
-                        @Override
-                        public void visitClass(PsiClass aClass) {
-                            Collections.addAll(methods, aClass.getMethods());
-                            super.visitClass(aClass);
-                        }
-                    });
-                    for (PsiMethod method : methods) {
-                        elements.add((Navigatable) method.getNavigationElement());
-                    }
-                }
-            }
-        }
-        return elements;
     }
 
     private void fillComboBoxData(@NotNull Project project) {
@@ -123,7 +110,7 @@ public class PluginSettingsToolWindow {
                     });
                     for (PsiMethod method : methods) {
                         MethodData methodData = new MethodData();
-                        methodData.setNavigatable((Navigatable) method.getNavigationElement());
+                        methodData.setPsiMethodPointer(SmartPointerManager.createPointer(method));
                         methodData.setMethodName(PsiMethodUtils.getClassLevelUniqueMethodName(method));
 
                         classMethodsBox.addItem(methodData);
@@ -135,12 +122,17 @@ public class PluginSettingsToolWindow {
 
     @Data
     private static class MethodData {
-        private Navigatable navigatable;
+        private SmartPsiElementPointer<PsiMethod> psiMethodPointer;
         private String methodName;
 
         @Override
         public String toString() {
             return methodName;
+        }
+
+        public Navigatable getNavigatable() {
+            return Optional.ofNullable(getPsiMethodPointer().getElement())
+                    .map(t -> (Navigatable) t.getNavigationElement()).orElse(null);
         }
     }
 }

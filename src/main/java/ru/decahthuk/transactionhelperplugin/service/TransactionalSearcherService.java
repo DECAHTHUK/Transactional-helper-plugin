@@ -14,6 +14,7 @@ import ru.decahthuk.transactionhelperplugin.PluginDisposable;
 import ru.decahthuk.transactionhelperplugin.model.LambdaReferenceInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
+import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import java.time.LocalDateTime;
@@ -100,6 +101,9 @@ public final class TransactionalSearcherService implements Disposable {
 
     private Node<TransactionInformationPayload> buildUsageTreeInner(
             PsiMethod method, AtomicInteger methodCounter, Node<TransactionInformationPayload> parentNode) {
+        if (method == null) {
+            return null;
+        }
         String classMethodName = PsiMethodUtils.getUniqueClassMethodName(method);
         if (cache.containsKey(classMethodName)) {
             Node<TransactionInformationPayload> cachedValue = cache.get(classMethodName);
@@ -146,8 +150,9 @@ public final class TransactionalSearcherService implements Disposable {
         Map<String, String> transactionalArgs = searchTransactionalData(method);
         payload.setClassName(PsiMethodUtils.getClassName(method));
         payload.setMethodIdentifier(PsiMethodUtils.getUniqueClassMethodName(method));
+        payload.setPsiMethodPointer(SmartPointerManager.createPointer(method));
         payload.setTransactional(transactionalArgs != null);
-        payload.setArgs(transactionalArgs);
+        payload.setPropagation(PsiAnnotationUtils.getPropagationArg(transactionalArgs));
         return payload;
     }
 

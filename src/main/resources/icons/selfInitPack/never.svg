@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1">
+    <ellipse
+       style="opacity:0.7;fill:#40b6e0;fill-opacity:1;stroke:#e05555;stroke-width:1.87586;stroke-dasharray:none;stroke-opacity:1"
+       id="path1"
+       cx="7.9999995"
+       cy="8.0000019"
+       rx="7.0620689"
+       ry="7.0620713" />
+    <text
+       xml:space="preserve"
+       style="font-size:7.86374px;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:0.7;fill:#231f20;fill-opacity:1;stroke:#e05555;stroke-width:0"
+       x="2.5987186"
+       y="10.319873"
+       id="text2"
+       transform="scale(0.93817023,1.0659046)"><tspan
+         id="tspan2"
+         x="2.5987186"
+         y="10.319873"
+         style="font-size:7.86374px;stroke-width:0">NR</tspan></text>
+  </g>
+</svg>

@@ -1,16 +1,21 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
 
 import com.intellij.pom.Navigatable;
+import lombok.Getter;
+import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class UINavigatableTreeNode extends DefaultMutableTreeNode implements Navigatable {
 
     private final Navigatable navigatable;
+    @Getter
+    private final TransactionInformationPayload payload;
 
-    public UINavigatableTreeNode(String label, Navigatable navigatable) {
+    public UINavigatableTreeNode(String label, Navigatable navigatable, TransactionInformationPayload payload) {
         super(label);
         this.navigatable = navigatable;
+        this.payload = payload;
     }
 
     @Override

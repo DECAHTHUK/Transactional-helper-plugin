@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1">
+    <circle
+       style="opacity:0.7;fill:#40b6e0;fill-opacity:1;stroke:#e05555;stroke-width:0;stroke-dasharray:none;stroke-opacity:1"
+       id="path1"
+       cx="8"
+       cy="8"
+       r="8" />
+    <text
+       xml:space="preserve"
+       style="font-size:7.43327px;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:0.7;fill:#231f20;fill-opacity:1;stroke:#e05555;stroke-width:0"
+       x="2.5036452"
+       y="10.272768"
+       id="text2"
+       transform="scale(0.9715029,1.029333)"><tspan
+         id="tspan2"
+         x="2.5036452"
+         y="10.272768"
+         style="font-size:7.43327px;stroke-width:0">RQ</tspan></text>
+  </g>
+</svg>

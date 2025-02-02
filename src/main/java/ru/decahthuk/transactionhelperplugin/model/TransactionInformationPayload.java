@@ -1,5 +1,8 @@
 package ru.decahthuk.transactionhelperplugin.model;
 
+import com.intellij.pom.Navigatable;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.SmartPsiElementPointer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Transaction info
@@ -37,9 +41,16 @@ public class TransactionInformationPayload {
     private boolean isTransactional;
 
     /**
+     * Smart pointer to a method. Used in UI tree build process
+     *
+     * @see ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeBuilder#buildTree(Node)
+     */
+    private SmartPsiElementPointer<PsiMethod> psiMethodPointer;
+
+    /**
      * Transactional params
      */
-    private Map<String, String> args;
+    private TransactionalPropagation propagation;
 
     /**
      * Information about where this method is invoked as a lambda reference(there may be multiple different invocations in same method)
@@ -60,6 +71,11 @@ public class TransactionInformationPayload {
      */
     private List<String> incorrectSelfInvocationsContainingMethodsList = new ArrayList<>();
 
+    public Navigatable getNavigatable() {
+        return Optional.ofNullable(getPsiMethodPointer().getElement())
+                .map(t -> (Navigatable) t.getNavigationElement()).orElse(null);
+    }
+
     public boolean containsLambdaReferencesFromMethod(String methodIdentifier) {
         return lambdaReferenceInformationMap.containsKey(methodIdentifier);
     }
@@ -69,24 +85,6 @@ public class TransactionInformationPayload {
         if (CollectionUtils.isNotEmpty(lambdas)) {
             for (LambdaReferenceInformation lambda : lambdas) {
                 if (lambda.getPropagation() == propagation) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean anyLambdaReferenceIsNotOfPropagation(String methodIdentifier, TransactionalPropagation propagation) {
-        List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
-        if (CollectionUtils.isNotEmpty(lambdas)) {
-            if (lambdas.size() != numberOfCallsInsideOfMethod.get(methodIdentifier)) {
-                return true;
-            }
-            for (LambdaReferenceInformation lambda : lambdas) {
-                if (!lambda.isTransactional()) {
-                    return true;
-                }
-                if (lambda.getPropagation() != propagation) {
                     return true;
                 }
             }
@@ -109,6 +107,18 @@ public class TransactionInformationPayload {
         return false;
     }
 
+    public boolean anyLambdaReferenceIsTransactional(String methodIdentifier) {
+        List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
+        if (CollectionUtils.isNotEmpty(lambdas)) {
+            for (LambdaReferenceInformation lambda : lambdas) {
+                if (lambda.isTransactional()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean anyLambdaReferenceNotInListOfPropagations(String methodIdentifier, List<TransactionalPropagation> propagations) {
         List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
         if (CollectionUtils.isNotEmpty(lambdas)) {
@@ -119,19 +129,6 @@ public class TransactionInformationPayload {
             }
         }
         return false;
-    }
-
-    public boolean allLambdaReferencesInListOfPropagations(String methodIdentifier, List<TransactionalPropagation> propagations) {
-        List<LambdaReferenceInformation> lambdas = lambdaReferenceInformationMap.get(methodIdentifier);
-        if (CollectionUtils.isNotEmpty(lambdas)) {
-            for (LambdaReferenceInformation lambda : lambdas) {
-                if (!lambda.isTransactional() ||
-                        (lambda.getPropagation() != null && !propagations.contains(lambda.getPropagation()))) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public boolean noneLambdaReferencesInListOfPropagations(String methodIdentifier, List<TransactionalPropagation> propagations) {
@@ -186,5 +183,9 @@ public class TransactionInformationPayload {
 
     public boolean methodIsCorrectlySelfInvokedFromMethod(TransactionInformationPayload payload) {
         return !incorrectSelfInvocationsContainingMethodsList.contains(payload.getMethodIdentifier());
+    }
+
+    public boolean methodIsCorrectlySelfInvokedFromMethod(String methodIdentifier) {
+        return !incorrectSelfInvocationsContainingMethodsList.contains(methodIdentifier);
     }
 }

@@ -64,7 +64,7 @@ public final class TransactionalTreeAnalyzer {
                 return lambdaCheck;
             }
             if (calledData.isTransactional() && calledData.methodIsCorrectlySelfInvokedFromMethod(callerData)) {
-                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+                TransactionalPropagation propagation = calledData.getPropagation();
                 if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
                     continue;
                 }
@@ -160,7 +160,7 @@ public final class TransactionalTreeAnalyzer {
                 continue;
             }
             if (calledData.isTransactional() && calledData.methodIsCorrectlySelfInvokedFromMethod(callerData)) {
-                TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(calledData.getArgs());
+                TransactionalPropagation propagation = calledData.getPropagation();
                 if (propagation == TransactionalPropagation.NOT_SUPPORTED || propagation == TransactionalPropagation.NEVER) {
                     return true;
                 }
@@ -208,7 +208,7 @@ public final class TransactionalTreeAnalyzer {
             return lambdaCheck;
         }
         if (callerData.isTransactional()) {
-            TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(callerData.getArgs());
+            TransactionalPropagation propagation = callerData.getPropagation();
             if (propagation == TransactionalPropagation.NOT_SUPPORTED || propagation == TransactionalPropagation.NEVER) {
                 return false;
             }
@@ -230,7 +230,7 @@ public final class TransactionalTreeAnalyzer {
             return lambdaCheck;
         }
         if (callerData.isTransactional()) {
-            TransactionalPropagation propagation = PsiAnnotationUtils.getPropagationArg(callerData.getArgs());
+            TransactionalPropagation propagation = callerData.getPropagation();
             if (propagation == TransactionalPropagation.NOT_SUPPORTED || propagation == TransactionalPropagation.NEVER) {
                 return true;
             }

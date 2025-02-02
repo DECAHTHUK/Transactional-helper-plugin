@@ -3,12 +3,15 @@ package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
 
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
+import lombok.Getter;
+import ru.decahthuk.transactionhelperplugin.toolWindow.tree.style.CustomCellRenderer;
 
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 
+@Getter
 public class TransactionalTreePanel extends JPanel {
     private final Tree tree;
 
@@ -25,7 +28,6 @@ public class TransactionalTreePanel extends JPanel {
         // Enable virtualization for large trees
         tree.setLargeModel(true);
 
-        // Add double-click listener for navigation
         tree.addTreeSelectionListener(e -> {
             TreePath path = tree.getSelectionPath();
             if (path != null) {
@@ -39,7 +41,4 @@ public class TransactionalTreePanel extends JPanel {
         tree.setCellRenderer(new CustomCellRenderer());
     }
 
-    public Tree getTree() {
-        return tree;
-    }
 }
