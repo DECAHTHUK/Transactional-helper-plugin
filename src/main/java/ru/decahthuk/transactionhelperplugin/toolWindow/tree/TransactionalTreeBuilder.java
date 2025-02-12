@@ -1,13 +1,10 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
 
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiMethod;
 import lombok.experimental.UtilityClass;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
 import javax.swing.tree.DefaultTreeModel;
-import java.util.Optional;
 
 @UtilityClass
 public class TransactionalTreeBuilder {
