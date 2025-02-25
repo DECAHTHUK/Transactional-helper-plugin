@@ -29,14 +29,11 @@ public class CustomCellRenderer extends ColoredTreeCellRenderer {
     private Icon getIconForNode(UINavigatableTreeNode node) {
         String path = IconPaths.ICON_PATH;
         TransactionInformationPayload payload = node.getPayload();
-        TransactionInformationPayload parentPayload = Optional.ofNullable((UINavigatableTreeNode) node.getParent())
-                .map(UINavigatableTreeNode::getPayload).orElse(null);
 
         // Checking for anomalies
-        if (parentPayload != null && parentPayload.isTransactional() &&
-                !parentPayload.methodIsCorrectlySelfInvokedFromMethod(payload.getMethodIdentifier())) {
+        if (node.isHasSelfInitIssues()) {
             path += IconPaths.SELF_INIT_SUB_PATH;
-        } else if (parentPayload != null && parentPayload.anyLambdaReferenceIsTransactional(payload.getMethodIdentifier())) {
+        } else if (node.isHasTransactionalLambdaRef()) {
             path += IconPaths.LAMBDA_REF_SUB_PATH;
         } else {
             path += IconPaths.NORMAL_SUB_PATH;

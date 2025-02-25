@@ -5,12 +5,13 @@ import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.Optional;
 
 @UtilityClass
 public class TransactionalTreeBuilder {
 
     public DefaultTreeModel buildTree(Node<TransactionInformationPayload> transactionInfo) {
-        UINavigatableTreeNode root = fillData(transactionInfo);
+        UINavigatableTreeNode root = fillData(transactionInfo, null);
         if (!transactionInfo.isLeaf()) {
             for (Node<TransactionInformationPayload> child : transactionInfo.getChildren()) {
                 buildTreeInner(child, root);
@@ -20,7 +21,7 @@ public class TransactionalTreeBuilder {
     }
 
     private void buildTreeInner(Node<TransactionInformationPayload> transactionInfo, UINavigatableTreeNode parent) {
-        UINavigatableTreeNode newNode = fillData(transactionInfo);
+        UINavigatableTreeNode newNode = fillData(transactionInfo, parent);
         parent.add(newNode);
         if (!transactionInfo.isLeaf()) {
             for (Node<TransactionInformationPayload> child : transactionInfo.getChildren()) {
@@ -29,8 +30,20 @@ public class TransactionalTreeBuilder {
         }
     }
 
-    private UINavigatableTreeNode fillData(Node<TransactionInformationPayload> transactionInfo) {
+    private UINavigatableTreeNode fillData(Node<TransactionInformationPayload> transactionInfo, UINavigatableTreeNode parent) {
         TransactionInformationPayload payload = transactionInfo.getData();
-        return new UINavigatableTreeNode(payload.getMethodIdentifier(), payload.getNavigatable(), payload);
+        UINavigatableTreeNode treeNode = new UINavigatableTreeNode(String.format("%s(%s.class)", payload.getMethodName(), payload.getClassName()),
+                payload.getNavigatable(), payload);
+
+        TransactionInformationPayload parentPayload = Optional.ofNullable(parent).map(UINavigatableTreeNode::getPayload).orElse(null);
+
+        // Checking for anomalies
+        if (parentPayload != null && parentPayload.isTransactional() &&
+                !parentPayload.methodIsCorrectlySelfInvokedFromMethod(payload.getMethodIdentifier())) {
+            treeNode.setHasSelfInitIssues(true);
+        } else if (parentPayload != null && parentPayload.anyLambdaReferenceIsTransactional(payload.getMethodIdentifier())) {
+            treeNode.setHasTransactionalLambdaRef(true);
+        }
+        return treeNode;
     }
 }

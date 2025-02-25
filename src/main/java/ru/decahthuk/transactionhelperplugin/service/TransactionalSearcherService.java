@@ -125,6 +125,10 @@ public final class TransactionalSearcherService implements Disposable {
             PsiElement element = reference.getElement();
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (containingMethod != null) {
+                if (containingMethod.equals(method)) {
+                    visitedMethods.add(containingMethod);
+                    return;
+                }
                 PsiClass containingClass = containingMethod.getContainingClass();
                 if (containingClass == null || !String.valueOf(containingClass.getQualifiedName()).endsWith(TEST_CLASS_POSTFIX)) {
                     String containingMethodName = PsiMethodUtils.getUniqueClassMethodName(containingMethod);
@@ -149,6 +153,7 @@ public final class TransactionalSearcherService implements Disposable {
         TransactionInformationPayload payload = new TransactionInformationPayload();
         Map<String, String> transactionalArgs = searchTransactionalData(method);
         payload.setClassName(PsiMethodUtils.getClassName(method));
+        payload.setMethodName(method.getName());
         payload.setMethodIdentifier(PsiMethodUtils.getUniqueClassMethodName(method));
         payload.setPsiMethodPointer(SmartPointerManager.createPointer(method));
         payload.setTransactional(transactionalArgs != null);

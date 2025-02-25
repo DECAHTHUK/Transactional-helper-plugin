@@ -31,6 +31,11 @@ public class TransactionInformationPayload {
     private String className;
 
     /**
+     * Method name
+     */
+    private String methodName;
+
+    /**
      * Method identifier(full qualified unique name)
      */
     private String methodIdentifier;

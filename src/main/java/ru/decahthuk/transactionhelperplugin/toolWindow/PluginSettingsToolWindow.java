@@ -13,6 +13,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.ui.ColoredSideBorder;
@@ -104,6 +105,9 @@ public class PluginSettingsToolWindow {
                     psiJavaFile.accept(new JavaRecursiveElementVisitor() {
                         @Override
                         public void visitClass(PsiClass aClass) {
+                            if (aClass.getContainingClass() != null && aClass.hasModifierProperty(PsiModifier.STATIC)) {
+                                return; // Skip inner static classes
+                            }
                             Collections.addAll(methods, aClass.getMethods());
                             super.visitClass(aClass);
                         }

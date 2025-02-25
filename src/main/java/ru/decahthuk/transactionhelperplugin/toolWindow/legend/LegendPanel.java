@@ -37,6 +37,7 @@ public class LegendPanel extends JPanel {
 
     private void addLegendItem(Icon icon, String description) {
         JPanel itemPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        itemPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         itemPanel.add(new JLabel(icon));
         itemPanel.add(new JLabel(description));
         add(itemPanel);
