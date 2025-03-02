@@ -10,10 +10,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.PluginDisposable;
+import ru.decahthuk.transactionhelperplugin.config.CacheableSettings;
 import ru.decahthuk.transactionhelperplugin.model.LambdaReferenceInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
+import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
@@ -35,10 +38,13 @@ public final class TransactionalSearcherService implements Disposable {
 
     private static final Logger LOG = Logger.getInstance(TransactionalSearcherService.class);
 
+    private final CacheableSettings cacheableSettings;
+
     private final Lock lock = new ReentrantLock();
     private final Map<String, Node<TransactionInformationPayload>> cache = new HashMap<>();
 
     public TransactionalSearcherService(Project project) {
+        cacheableSettings = project.getService(CacheableSettings.class);
         PsiManager manager = PsiManager.getInstance(project);
         manager.addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
@@ -99,23 +105,25 @@ public final class TransactionalSearcherService implements Disposable {
         }
     }
 
-    private Node<TransactionInformationPayload> buildUsageTreeInner(
-            PsiMethod method, AtomicInteger methodCounter, Node<TransactionInformationPayload> parentNode) {
-        if (method == null) {
-            return null;
-        }
-        String classMethodName = PsiMethodUtils.getUniqueClassMethodName(method);
-        if (cache.containsKey(classMethodName)) {
-            Node<TransactionInformationPayload> cachedValue = cache.get(classMethodName);
+    private Node<TransactionInformationPayload> buildUsageTreeInner(PsiMethod method,
+                                                                    @Nullable AtomicInteger methodCounter,
+                                                                    Node<TransactionInformationPayload> parentNode) {
+        String uniqueClassMethodName = PsiMethodUtils.getUniqueClassMethodName(method);
+        if (cache.containsKey(uniqueClassMethodName)) { // TODO: as for now maxNodeDepth breaks caching system (not a bug but feature?)
+            Node<TransactionInformationPayload> cachedValue = cache.get(uniqueClassMethodName);
             Optional.ofNullable(parentNode).ifPresent(t -> t.addChild(cachedValue));
             return cachedValue;
         }
         Node<TransactionInformationPayload> newNode = new Node<>(buildTransactionInformationPayload(method), parentNode);
-        Optional.ofNullable(parentNode).ifPresent(t -> t.addChild(newNode));
-        cache.put(classMethodName, newNode);
+        cache.put(uniqueClassMethodName, newNode);
 
         if (methodCounter != null) {
             methodCounter.incrementAndGet();
+        }
+
+        if (newNode.getDepth() >= cacheableSettings.getMaxTreeDepth()) {
+            log.warn("MAX NODE DEPTH REACHED: {}", cacheableSettings.getMaxTreeDepth());
+            return newNode;
         }
 
         Query<PsiReference> query = ReferencesSearch.search(method);
@@ -126,19 +134,11 @@ public final class TransactionalSearcherService implements Disposable {
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (containingMethod != null) {
                 if (containingMethod.equals(method)) {
-                    visitedMethods.add(containingMethod);
                     return;
                 }
                 PsiClass containingClass = containingMethod.getContainingClass();
                 if (containingClass == null || !String.valueOf(containingClass.getQualifiedName()).endsWith(TEST_CLASS_POSTFIX)) {
-                    String containingMethodName = PsiMethodUtils.getUniqueClassMethodName(containingMethod);
-                    newNode.getData().addCall(containingMethodName);
-                    checkLambdaReference(element).ifPresent(t -> Optional.of(newNode)
-                            .ifPresent(nN -> nN.getData().addLambdaReference(containingMethodName, t)));
-                    if (TransactionalMethodAnalyzer.methodCallExpressionIsIncorrectClassLevelInvocation(element)) {
-                        Optional.of(newNode).ifPresent(t -> t.getData()
-                                .addIncorrectSelfInvocation(PsiMethodUtils.getUniqueClassMethodName(containingMethod)));
-                    }
+                    checkAnomalies(element, newNode, containingMethod);
                     if (!visitedMethods.contains(containingMethod)) {
                         visitedMethods.add(containingMethod);
                         buildUsageTreeInner(containingMethod, methodCounter, newNode);
@@ -159,6 +159,17 @@ public final class TransactionalSearcherService implements Disposable {
         payload.setTransactional(transactionalArgs != null);
         payload.setPropagation(PsiAnnotationUtils.getPropagationArg(transactionalArgs));
         return payload;
+    }
+
+    private void checkAnomalies(PsiElement element, Node<TransactionInformationPayload> newNode, PsiMethod containingMethod) {
+        String containingMethodName = PsiMethodUtils.getUniqueClassMethodName(containingMethod);
+        newNode.getData().addCall(containingMethodName);
+        checkLambdaReference(element).ifPresent(t -> Optional.of(newNode)
+                .ifPresent(nN -> nN.getData().addLambdaReference(containingMethodName, t)));
+        if (TransactionalMethodAnalyzer.methodCallExpressionIsIncorrectClassLevelInvocation(element)) {
+            Optional.of(newNode).ifPresent(t -> t.getData()
+                    .addIncorrectSelfInvocation(PsiMethodUtils.getUniqueClassMethodName(containingMethod)));
+        }
     }
 
     private static Optional<LambdaReferenceInformation> checkLambdaReference(PsiElement reference) {
@@ -197,7 +208,7 @@ public final class TransactionalSearcherService implements Disposable {
         return annotation;
     }
 
-    private void cacheEvict() {
+    public void cacheEvict() {
         cache.clear();
     }
 

@@ -11,7 +11,6 @@ import ru.decahthuk.transactionhelperplugin.toolWindow.tree.UINavigatableTreeNod
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.Optional;
 
 public class CustomCellRenderer extends ColoredTreeCellRenderer {
     @Override

@@ -58,7 +58,6 @@ public class TransactionalTreePanel extends JPanel {
         if (node instanceof UINavigatableTreeNode) {
             UINavigatableTreeNode treeNode = (UINavigatableTreeNode) node;
 
-            // Create the context menu
             JPopupMenu contextMenu = new JPopupMenu();
 
             JMenuItem openItem = new JMenuItem("Navigate to");

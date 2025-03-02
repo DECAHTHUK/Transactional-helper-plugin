@@ -1,6 +1,8 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -22,10 +24,10 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.decahthuk.transactionhelperplugin.config.CacheableSettings;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
-import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeDialog;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import javax.swing.JButton;
@@ -54,28 +56,20 @@ public class PluginSettingsToolWindow {
     public PluginSettingsToolWindow(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         DumbService.getInstance(project).runWhenSmart(() -> {
             fillComboBoxData(project);
-            refreshLayoutButton.addActionListener(e -> {
-                fillComboBoxData(project);
-            });
+
+            maxTreeDepthTextField.setText(String.valueOf(project.getService(CacheableSettings.class).getMaxTreeDepth()));
+            refreshLayoutButton.addActionListener(e -> fillComboBoxData(project));
             goToButton.addActionListener(e -> {
                 MethodData methodData = (MethodData) classMethodsBox.getSelectedItem();
                 if (methodData != null) {
                     methodData.getNavigatable().navigate(true);
                 }
             });
-            saveMaxTreeDepthButton.addActionListener(e -> {
-                String data = maxTreeDepthTextField.getText();
-                if (!StringUtils.isNumeric(data)) {
-                    maxTreeDepthTextField.setBorder(new ColoredSideBorder(JBColor.RED, JBColor.RED, JBColor.RED, JBColor.RED, 1));
-                    maxTreeDepthErrorLabel.setText("Field should be numeric");
-                } else {
-                    maxTreeDepthTextField.setBorder(null);
-                    maxTreeDepthErrorLabel.setText("");
-                }
-            });
-            viewTreeButton.addActionListener(e -> {
-                MethodData methodData = (MethodData) classMethodsBox.getSelectedItem();
-                showTreeWindow(project, methodData);
+            saveMaxTreeDepthButton.addActionListener(e -> saveMaxTreeDepthButtonLogic(project));
+            viewTreeButton.addActionListener(e -> showTreeWindow(project, (MethodData) classMethodsBox.getSelectedItem()));
+            refreshInspectionsButton.addActionListener(e -> {
+                project.getService(TransactionalSearcherService.class).cacheEvict();
+                DaemonCodeAnalyzer.getInstance(project).restart(); // rerunning inspections
             });
         });
     }
@@ -87,8 +81,20 @@ public class PluginSettingsToolWindow {
     private void showTreeWindow(Project project, MethodData methodData) {
         Node<TransactionInformationPayload> transactionInfo = project.getService(TransactionalSearcherService.class)
                 .buildUsageTree(methodData.getPsiMethodPointer().getElement());
-        TransactionalTreeDialog dialog = new TransactionalTreeDialog(transactionInfo);
+        TransactionalInfoDialog dialog = new TransactionalInfoDialog(transactionInfo);
         dialog.show();
+    }
+
+    private void saveMaxTreeDepthButtonLogic(Project project) {
+        String data = maxTreeDepthTextField.getText();
+        if (!StringUtils.isNumeric(data)) {
+            maxTreeDepthTextField.setBorder(new ColoredSideBorder(JBColor.RED, JBColor.RED, JBColor.RED, JBColor.RED, 1));
+            maxTreeDepthErrorLabel.setText("Field should be numeric");
+        } else {
+            maxTreeDepthTextField.setBorder(null);
+            maxTreeDepthErrorLabel.setText("");
+            project.getService(CacheableSettings.class).setMaxTreeDepth(Integer.parseInt(data));
+        }
     }
 
     private void fillComboBoxData(@NotNull Project project) {

@@ -1,4 +1,4 @@
-package ru.decahthuk.transactionhelperplugin.service;
+package ru.decahthuk.transactionhelperplugin.service.staticservice;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
@@ -6,6 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
+import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
 
 import java.util.Map;
 import java.util.Objects;

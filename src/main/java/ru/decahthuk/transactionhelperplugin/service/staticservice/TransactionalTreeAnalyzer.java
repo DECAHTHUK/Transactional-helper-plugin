@@ -1,10 +1,9 @@
-package ru.decahthuk.transactionhelperplugin.service;
+package ru.decahthuk.transactionhelperplugin.service.staticservice;
 
 import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
-import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
 import java.util.Arrays;
 import java.util.List;

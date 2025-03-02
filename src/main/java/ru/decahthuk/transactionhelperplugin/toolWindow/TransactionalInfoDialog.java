@@ -1,9 +1,11 @@
-package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
+package ru.decahthuk.transactionhelperplugin.toolWindow;
 
 import com.intellij.openapi.ui.DialogWrapper;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.toolWindow.legend.LegendPanel;
+import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeBuilder;
+import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreePanel;
 
 import javax.annotation.Nullable;
 import javax.swing.JComponent;
@@ -11,12 +13,12 @@ import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.BorderLayout;
 
-public class TransactionalTreeDialog extends DialogWrapper {
+public class TransactionalInfoDialog extends DialogWrapper {
 
     private final TransactionalTreePanel transactionalTreePanel;
     private final LegendPanel legendPanel;
 
-    public TransactionalTreeDialog(Node<TransactionInformationPayload> transactionInfo) {
+    public TransactionalInfoDialog(Node<TransactionInformationPayload> transactionInfo) {
         super(true);
         DefaultTreeModel treeModel = TransactionalTreeBuilder.buildTree(transactionInfo);
         this.transactionalTreePanel = new TransactionalTreePanel(treeModel);

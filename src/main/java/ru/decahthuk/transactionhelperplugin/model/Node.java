@@ -21,9 +21,14 @@ import java.util.Set;
 public class Node<T> {
     private T data;
     private Set<Node<T>> children;
+    private int depth = 0;
 
     public Node(T data, Node<T> parent) {
         this.data = data;
+        if (parent != null) {
+            this.depth = parent.getDepth() + 1;
+            parent.addChild(this);
+        }
     }
 
     public void addChild(Node<T> child) {

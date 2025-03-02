@@ -13,9 +13,9 @@ import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
-import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
-import ru.decahthuk.transactionhelperplugin.service.TransactionalTreeAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
 
 import java.util.Map;
@@ -64,6 +64,10 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
 
     @Override
     public @NonNls @NotNull String getShortName() {
+        return shortName();
+    }
+
+    public static String shortName() {
         return InspectionBundle.message("inspection.method.lazy.getter.call.short.name");
     }
 }

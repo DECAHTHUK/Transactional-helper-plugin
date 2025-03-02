@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.TransactionalSelfInvocationQuickFix;
-import ru.decahthuk.transactionhelperplugin.service.TransactionalMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
 
 public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocalInspectionTool {
 
@@ -39,6 +39,10 @@ public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocal
 
     @Override
     public @NonNls @NotNull String getShortName() {
+        return shortName();
+    }
+
+    public static String shortName() {
         return InspectionBundle.message("inspection.method.transactional.self.invocation.short.name");
     }
 }

@@ -86,5 +86,7 @@
 
     <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.General.Modified" anchor="right"
                 factoryClass="ru.decahthuk.transactionhelperplugin.toolWindow.PluginSettingsToolWindowFactory"/>
+
+    <applicationService serviceImplementation="ru.decahthuk.transactionhelperplugin.config.CacheableSettings"/>
     </extensions>
 </idea-plugin>
