@@ -46,7 +46,34 @@ public final class TransactionalMethodAnalyzer {
         return false;
     }
 
-    // Rudimentary
+    public static boolean methodsAreTransactionalSelfInvoked(PsiMethod calledMethod, PsiMethod methodThatCalls) {
+        TransactionInformationPayload calledMethodPayload = TransactionalSearcherService
+                .buildTransactionInformationPayload(calledMethod);
+        if (calledMethodPayload.isTransactional()) {
+            TransactionInformationPayload methodThatCallsPayload = TransactionalSearcherService
+                    .buildTransactionInformationPayload(methodThatCalls);
+            return !methodThatCallsPayload.isTransactional();
+        }
+        return false;
+    }
+
+    public static boolean isCallALazyInitializedEntity(Map<String, EntityClassInformation> entityClassInformationMap, PsiMethodCallExpression call) {
+        PsiMethod resolvedMethod = call.resolveMethod();
+        if (resolvedMethod != null) {
+            PsiClass containingClass = resolvedMethod.getContainingClass();
+            if (containingClass != null) {
+                String className = containingClass.getQualifiedName();
+                if (entityClassInformationMap.containsKey(className)) {
+                    EntityClassInformation entityClassInformation = entityClassInformationMap.get(className);
+                    String methodName = call.getMethodExpression().getReferenceName();
+                    return entityClassInformation.getLazyFieldGetters().contains(methodName);
+                }
+            }
+        }
+        return false;
+    }
+
+    @Deprecated
     private static boolean lambdaReferencePresent(@NotNull PsiClass callerMethodContainingClass,
                                                   @NotNull PsiClass calledMethodContainingClass,
                                                   @NotNull PsiMethodCallExpression expression) {
@@ -75,32 +102,5 @@ public final class TransactionalMethodAnalyzer {
             }
         }
         return true;
-    }
-
-    public static boolean methodsAreTransactionalSelfInvoked(PsiMethod calledMethod, PsiMethod methodThatCalls) {
-        TransactionInformationPayload calledMethodPayload = TransactionalSearcherService
-                .buildTransactionInformationPayload(calledMethod);
-        if (calledMethodPayload.isTransactional()) {
-            TransactionInformationPayload methodThatCallsPayload = TransactionalSearcherService
-                    .buildTransactionInformationPayload(methodThatCalls);
-            return !methodThatCallsPayload.isTransactional();
-        }
-        return false;
-    }
-
-    public static boolean isCallALazyInitializedEntity(Map<String, EntityClassInformation> entityClassInformationMap, PsiMethodCallExpression call) {
-        PsiMethod resolvedMethod = call.resolveMethod();
-        if (resolvedMethod != null) {
-            PsiClass containingClass = resolvedMethod.getContainingClass();
-            if (containingClass != null) {
-                String className = containingClass.getQualifiedName();
-                if (entityClassInformationMap.containsKey(className)) {
-                    EntityClassInformation entityClassInformation = entityClassInformationMap.get(className);
-                    String methodName = call.getMethodExpression().getReferenceName();
-                    return entityClassInformation.getLazyFieldGetters().contains(methodName);
-                }
-            }
-        }
-        return false;
     }
 }

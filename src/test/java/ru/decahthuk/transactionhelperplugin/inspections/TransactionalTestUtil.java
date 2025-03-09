@@ -37,9 +37,11 @@ public final class TransactionalTestUtil {
 
             final VirtualFile javaBase = getJarFile("java-base.jar");
             final VirtualFile springData = getJarFile("spring-tx-5.3.0.jar");
+            final VirtualFile springBeans = getJarFile("spring-beans-5.3.20.jar");
             final VirtualFile javaxPersistence = getJarFile("javax.persistence-api-2.2.jar");
             PsiTestUtil.newLibrary("javaBase").classesRoot(javaBase).addTo(model);
             PsiTestUtil.newLibrary("springData").classesRoot(springData).addTo(model);
+            PsiTestUtil.newLibrary("springBeans").classesRoot(springBeans).addTo(model);
             PsiTestUtil.newLibrary("javaxPersistence").classesRoot(javaxPersistence).addTo(model);
         }
 

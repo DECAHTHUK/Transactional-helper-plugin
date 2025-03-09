@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNameValuePair;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
@@ -36,6 +37,7 @@ public class PropagationQuickFix implements LocalQuickFix {
                             annotation.getParameterList().getFirstChild().delete(); // Left brace
                             annotation.getParameterList().getLastChild().delete(); // Right brace
                         }
+                        JavaCodeStyleManager.getInstance(project).optimizeImports(element.getContainingFile());
                     });
                     break;
                 }

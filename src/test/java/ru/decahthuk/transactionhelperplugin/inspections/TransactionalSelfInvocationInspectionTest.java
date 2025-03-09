@@ -44,17 +44,4 @@ public class TransactionalSelfInvocationInspectionTest extends BaseTransactional
         myFixture.configureByFile("TransactionalSelfInvocationPresentWithNoOngoingButCorrectSelfRef.java");
         myFixture.checkHighlighting();
     }
-
-//TODO quick fix tests
-/*
-    public void testQuickFix_commentOutHighlightedText() {
-        myFixture.configureByFile("LazyInitializationPresentDifferentEagerRelationsWithNoOngoing.java");
-        myFixture.checkHighlighting();
-
-        // Apply the quick fix
-        myFixture.launchAction(myFixture.findSingleIntention("Comment out the highlighted text"));
-
-        // Verify the changes
-        myFixture.checkResultByFile("LazyInitializationPresentDifferentEagerRelationsWithNoOngoing_afterQuickFix.java");
-    }*/
 }
