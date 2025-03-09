@@ -1,6 +1,7 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import ru.decahthuk.transactionhelperplugin.bundle.UIBundle;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.toolWindow.legend.LegendPanel;
@@ -24,7 +25,7 @@ public class TransactionalInfoDialog extends DialogWrapper {
         this.transactionalTreePanel = new TransactionalTreePanel(treeModel);
         this.legendPanel = new LegendPanel();
         init();
-        setTitle("Custom Tree Viewer");
+        setTitle(UIBundle.message("toolWindow.transactional-tree-panel.window-name"));
     }
 
     @Override

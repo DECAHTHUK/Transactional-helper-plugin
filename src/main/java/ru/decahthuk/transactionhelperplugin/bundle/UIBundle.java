@@ -1,5 +1,4 @@
-package ru.decahthuk.transactionhelperplugin;
-
+package ru.decahthuk.transactionhelperplugin.bundle;
 
 import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.Nls;
@@ -7,14 +6,14 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class InspectionBundle extends DynamicBundle{
+public class UIBundle extends DynamicBundle {
 
     @NonNls
-    public static final String BUNDLE = "messages.InspectionBundle";
+    public static final String BUNDLE = "messages.UIBundle";
 
-    private static final InspectionBundle INSTANCE = new InspectionBundle();
+    private static final UIBundle INSTANCE = new UIBundle();
 
-    private InspectionBundle() {
+    private UIBundle() {
         super(BUNDLE);
     }
 
@@ -22,5 +21,4 @@ public final class InspectionBundle extends DynamicBundle{
                                       Object @NotNull ... params) {
         return INSTANCE.getMessage(key, params);
     }
-
 }

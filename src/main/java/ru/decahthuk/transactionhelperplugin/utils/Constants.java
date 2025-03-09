@@ -1,9 +1,11 @@
 package ru.decahthuk.transactionhelperplugin.utils;
 
+import org.jetbrains.annotations.NonNls;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 
 import java.util.List;
 
+@NonNls
 public final class Constants {
 
     public static final String AUTOWIRED_ANNOTATION_QUALIFIED_NAME = "org.springframework.beans.factory.annotation.Autowired";

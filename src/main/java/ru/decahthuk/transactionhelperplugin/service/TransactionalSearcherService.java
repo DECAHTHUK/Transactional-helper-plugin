@@ -9,6 +9,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.PluginDisposable;
@@ -32,10 +33,10 @@ import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL
 import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.getPropagationArg;
 import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.parseAnnotationArgs;
 
-@Slf4j
 @Service(Service.Level.PROJECT)
 public final class TransactionalSearcherService implements Disposable {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(TransactionalSearcherService.class);
 
     private final CacheableSettings cacheableSettings;
@@ -122,7 +123,7 @@ public final class TransactionalSearcherService implements Disposable {
         }
 
         if (newNode.getDepth() >= cacheableSettings.getMaxTreeDepth()) {
-            log.warn("MAX NODE DEPTH REACHED: {}", cacheableSettings.getMaxTreeDepth());
+            LOG.warn("MAX NODE DEPTH REACHED: " + cacheableSettings.getMaxTreeDepth());
             return newNode;
         }
 

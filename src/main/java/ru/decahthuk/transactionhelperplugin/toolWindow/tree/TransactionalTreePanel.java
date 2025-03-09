@@ -4,6 +4,7 @@ package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import lombok.Getter;
+import ru.decahthuk.transactionhelperplugin.bundle.UIBundle;
 import ru.decahthuk.transactionhelperplugin.toolWindow.tree.style.CustomCellRenderer;
 
 import javax.swing.JLabel;
@@ -60,21 +61,25 @@ public class TransactionalTreePanel extends JPanel {
 
             JPopupMenu contextMenu = new JPopupMenu();
 
-            JMenuItem openItem = new JMenuItem("Navigate to");
+            JMenuItem openItem = new JMenuItem(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.navigate-to"));
             openItem.addActionListener(event -> {
                 treeNode.navigate(true);
             });
             contextMenu.add(openItem);
             contextMenu.addSeparator();
 
-            JMenu infoMenu = new JMenu("Extended Info");
-            infoMenu.add(new JLabel("Propagation: " + treeNode.getPayload().getPropagation()));
+            JMenu infoMenu = new JMenu(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.extended-info"));
+            infoMenu.add(new JLabel(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.propagation")
+                    + ": " + treeNode.getPayload().getPropagation()));
             infoMenu.addSeparator();
-            infoMenu.add(new JLabel("Self init problems: " + treeNode.isHasSelfInitIssues()));
+            infoMenu.add(new JLabel(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.self-init-problems")
+                    + ": " + treeNode.isHasSelfInitIssues()));
             infoMenu.addSeparator();
-            infoMenu.add(new JLabel("Transactional lambda reference: " + treeNode.isHasTransactionalLambdaRef()));
+            infoMenu.add(new JLabel(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.transactional-lambda-reference")
+                    + ": " + treeNode.isHasTransactionalLambdaRef()));
             infoMenu.addSeparator();
-            infoMenu.add(new JLabel("Full qualified method name: " + treeNode.getPayload().getMethodIdentifier()));
+            infoMenu.add(new JLabel(UIBundle.message("toolWindow.transactional-tree-panel.context-menu.full-qualified-method-name")
+                    + ": " + treeNode.getPayload().getMethodIdentifier()));
             contextMenu.add(infoMenu);
 
             contextMenu.show(tree, x, y);

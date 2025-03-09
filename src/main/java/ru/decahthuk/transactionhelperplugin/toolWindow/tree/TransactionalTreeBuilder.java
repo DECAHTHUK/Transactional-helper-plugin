@@ -1,6 +1,7 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow.tree;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 
@@ -30,6 +31,7 @@ public class TransactionalTreeBuilder {
         }
     }
 
+    @NonNls
     private UINavigatableTreeNode fillData(Node<TransactionInformationPayload> transactionInfo, UINavigatableTreeNode parent) {
         TransactionInformationPayload payload = transactionInfo.getData();
         UINavigatableTreeNode treeNode = new UINavigatableTreeNode(String.format("%s(%s.class)", payload.getMethodName(), payload.getClassName()),

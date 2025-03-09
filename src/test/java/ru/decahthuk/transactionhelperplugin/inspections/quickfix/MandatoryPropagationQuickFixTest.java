@@ -3,7 +3,7 @@ package ru.decahthuk.transactionhelperplugin.inspections.quickfix;
 
 import com.intellij.codeInspection.InspectionProfileEntry;
 import org.jetbrains.annotations.Nullable;
-import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.BaseTransactionalInspectionTest;
 import ru.decahthuk.transactionhelperplugin.inspections.MandatoryPropagationInspection;
 import ru.decahthuk.transactionhelperplugin.inspections.TransactionalSelfInvocationInspection;

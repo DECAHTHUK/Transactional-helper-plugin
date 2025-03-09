@@ -1,7 +1,9 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow.tree.style;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @UtilityClass
 public class IconPaths {
 

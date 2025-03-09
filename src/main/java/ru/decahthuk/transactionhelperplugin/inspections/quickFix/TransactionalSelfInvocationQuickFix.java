@@ -18,12 +18,14 @@ import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
 
 public class TransactionalSelfInvocationQuickFix implements LocalQuickFix {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(TransactionalSelfInvocationQuickFix.class);
 
     @Override

@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.PropagationQuickFix;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -23,6 +23,7 @@ import java.util.List;
 
 public class PotentiallyUnwantedNestedTransactionInspection extends AbstractBaseJavaLocalInspectionTool {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(PotentiallyUnwantedNestedTransactionInspection.class);
 
     private TransactionalSearcherService transactionalSearcherService;

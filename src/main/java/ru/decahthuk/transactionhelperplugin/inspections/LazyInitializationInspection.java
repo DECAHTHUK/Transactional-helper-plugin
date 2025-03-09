@@ -8,7 +8,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectionTool {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(LazyInitializationInspection.class);
 
     private TransactionalSearcherService transactionalSearcherService;

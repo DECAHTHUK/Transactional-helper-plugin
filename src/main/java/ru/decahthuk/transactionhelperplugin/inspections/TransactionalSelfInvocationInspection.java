@@ -9,12 +9,13 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiMethodCallExpression;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import ru.decahthuk.transactionhelperplugin.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.TransactionalSelfInvocationQuickFix;
 import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
 
 public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocalInspectionTool {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(TransactionalSelfInvocationInspection.class);
 
     @Override

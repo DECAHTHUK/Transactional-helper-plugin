@@ -19,6 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.AnnotatedElementsSearch;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.PluginDisposable;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
@@ -43,6 +44,7 @@ import static ru.decahthuk.transactionhelperplugin.utils.Constants.JOIN_TABLE_FE
 @Service(Service.Level.PROJECT)
 public final class EntitySearcherService implements Disposable {
 
+    @NonNls
     private static final Logger LOG = Logger.getInstance(EntitySearcherService.class);
 
     private final Project project;

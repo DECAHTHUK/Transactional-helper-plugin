@@ -24,6 +24,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.decahthuk.transactionhelperplugin.bundle.UIBundle;
 import ru.decahthuk.transactionhelperplugin.config.CacheableSettings;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -89,7 +90,7 @@ public class PluginSettingsToolWindow {
         String data = maxTreeDepthTextField.getText();
         if (!StringUtils.isNumeric(data)) {
             maxTreeDepthTextField.setBorder(new ColoredSideBorder(JBColor.RED, JBColor.RED, JBColor.RED, JBColor.RED, 1));
-            maxTreeDepthErrorLabel.setText("Field should be numeric");
+            maxTreeDepthErrorLabel.setText(UIBundle.message("toolWindow.side-panel.max-tree-depth-validation-message"));
         } else {
             maxTreeDepthTextField.setBorder(null);
             maxTreeDepthErrorLabel.setText("");

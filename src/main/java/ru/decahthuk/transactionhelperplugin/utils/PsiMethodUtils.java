@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiType;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ public final class PsiMethodUtils {
     private PsiMethodUtils() {
     }
 
+    @NonNls
     public static String getClassName(PsiMethod method) {
         return Optional.ofNullable(method.getContainingClass())
                 .map(PsiClass::getQualifiedName).orElse("null");

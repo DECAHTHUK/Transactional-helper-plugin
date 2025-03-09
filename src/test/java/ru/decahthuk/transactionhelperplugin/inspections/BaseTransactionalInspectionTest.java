@@ -23,7 +23,7 @@ public abstract class BaseTransactionalInspectionTest extends LightJavaInspectio
 
         launchAllMatchingQuickFixes(fileName, fixText);
 
-        myFixture.checkHighlighting(false, false, false, true); // refresh inspection(idk how to do it properly. Doc is poor)
+        myFixture.checkHighlighting(false, false, false, true); // refresh inspection(IDK how to do it properly. Doc is poor)
         myFixture.checkResultByFile(fileNameWithNoExt + "Fixed.java", true);
     }
 
