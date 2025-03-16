@@ -2,7 +2,6 @@ package ru.decahthuk.transactionhelperplugin.toolWindow;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -32,11 +31,14 @@ import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +55,7 @@ public class PluginSettingsToolWindow {
     private JTextField maxTreeDepthTextField;
     private JButton saveMaxTreeDepthButton;
     private JLabel maxTreeDepthErrorLabel;
+    private JCheckBox osivModeCheckBox;
 
     public PluginSettingsToolWindow(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         DumbService.getInstance(project).runWhenSmart(() -> {
@@ -72,6 +75,9 @@ public class PluginSettingsToolWindow {
                 project.getService(TransactionalSearcherService.class).cacheEvict();
                 DaemonCodeAnalyzer.getInstance(project).restart(); // rerunning inspections
             });
+
+            osivModeCheckBox.setSelected(project.getService(CacheableSettings.class).isOSIVIsEnabled());
+            osivModeCheckBox.addItemListener(osivCheckBoxItemListener(project));
         });
     }
 
@@ -129,6 +135,17 @@ public class PluginSettingsToolWindow {
                 }
             }
         }
+    }
+
+    private ItemListener osivCheckBoxItemListener(@NotNull Project project) {
+        return e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                project.getService(CacheableSettings.class).setOSIVIsEnabled(true);
+            } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                project.getService(CacheableSettings.class).setOSIVIsEnabled(false);
+            }
+            DaemonCodeAnalyzer.getInstance(project).restart(); // rerunning inspections
+        };
     }
 
     @Data

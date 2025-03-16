@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
+import ru.decahthuk.transactionhelperplugin.config.CacheableSettings;
 import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -27,12 +28,14 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
 
     private TransactionalSearcherService transactionalSearcherService;
     private EntitySearcherService entitySearcherService;
+    private CacheableSettings cacheableSettings;
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         Project project = holder.getProject();
         transactionalSearcherService = project.getService(TransactionalSearcherService.class);
         entitySearcherService = project.getService(EntitySearcherService.class);
+        cacheableSettings = project.getService(CacheableSettings.class);
         if (entitySearcherService.jakartaIsNotPresent()) {
             return PsiElementVisitor.EMPTY_VISITOR;
         }
@@ -52,7 +55,7 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                         Node<TransactionInformationPayload> transactionInformationPayload =
                                 transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (Boolean.TRUE.equals(TransactionalTreeAnalyzer
-                                .treeBranchContainsNoTransactionWithCurrent(transactionInformationPayload))) {
+                                .treeBranchContainsNoSessionWithCurrent(transactionInformationPayload, cacheableSettings.isOSIVIsEnabled()))) {
                             LOG.warn("LazyInitializationInspection ping");
                             holder.registerProblem(call,
                                     InspectionBundle.message("inspection.method.lazy.getter.call.descriptor"));

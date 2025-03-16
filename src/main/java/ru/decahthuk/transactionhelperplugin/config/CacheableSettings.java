@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public final class CacheableSettings implements PersistentStateComponent<CacheableSettings> {
 
     private int maxTreeDepth = 30;
+    private boolean OSIVIsEnabled = true;
 
     @Override
     public CacheableSettings getState() {

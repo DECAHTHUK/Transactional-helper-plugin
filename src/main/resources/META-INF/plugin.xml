@@ -84,7 +84,7 @@
                      level="WARNING"
                      implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionalSelfInvocationInspection"/>
 
-    <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+    <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.Hierarchy.Subtypes" anchor="right"
                 factoryClass="ru.decahthuk.transactionhelperplugin.toolWindow.PluginSettingsToolWindowFactory"/>
 
     <applicationService serviceImplementation="ru.decahthuk.transactionhelperplugin.config.CacheableSettings"/>

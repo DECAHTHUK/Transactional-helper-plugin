@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
+import ru.decahthuk.transactionhelperplugin.utils.Constants;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,38 @@ public final class TransactionalTreeAnalyzer {
             }
         }
         return false;
+    }
+
+    /**
+     * Searches if there is any branch with no ongoing transaction excluding the current method (which is called)
+     *
+     * @param called - tree of calls (called method should be passed)
+     * @return - boolean value if the branch with no ongoing is present
+     */
+    @Nullable
+    public static Boolean treeBranchContainsNoTransactionWithoutCurrent(Node<TransactionInformationPayload> called) {
+        if (called.isLeaf()) {
+            return null;
+        }
+        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
+        for (Node<TransactionInformationPayload> caller : callers) {
+            boolean branch = treeBranchContainsNoTransaction(caller, called, false, false);
+            if (branch) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Searches if there is any branch with no ongoing hibernate session
+     *
+     * @param called - tree of calls (called method should be passed)
+     * @param OSIVisEnabled - Open Session In View is enabled
+     * @return - boolean value if the branch with no ongoing is present
+     */
+    public static boolean treeBranchContainsNoSessionWithCurrent(Node<TransactionInformationPayload> called, boolean OSIVisEnabled) {
+        return treeBranchContainsNoTransaction(called, new Node<>(), true, OSIVisEnabled);
     }
 
     /**
@@ -102,49 +135,22 @@ public final class TransactionalTreeAnalyzer {
     }
 
     /**
-     * Searches if there is any branch with no ongoing transaction excluding the current method (which is called)
-     *
-     * @param called - tree of calls (called method should be passed)
-     * @return - boolean value if the branch with no ongoing is present
-     */
-    @Nullable
-    public static Boolean treeBranchContainsNoTransactionWithoutCurrent(Node<TransactionInformationPayload> called) {
-        if (called.isLeaf()) {
-            return null;
-        }
-        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
-        for (Node<TransactionInformationPayload> caller : callers) {
-            boolean branch = treeBranchContainsNoTransaction(caller, called);
-            if (branch) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Searches if there is any branch with no ongoing transaction
-     *
-     * @param called - tree of calls (called method should be passed)
-     * @return - boolean value if the branch with no ongoing is present
-     */
-    public static boolean treeBranchContainsNoTransactionWithCurrent(Node<TransactionInformationPayload> called) {
-        return treeBranchContainsNoTransaction(called, new Node<>());
-    }
-
-    /**
      * Searches if there is any branch with no ongoing transaction
      *
      * @param called - tree of calls (called method should be passed)
      * @param previous - called method of param method 'called'
+     * @param sessionMode - flag if we should search for session, instead of transaction
+     * @param OSIVisEnabled - Open Session In View is enabled
      * @return - boolean value if the branch with no ongoing is present
      */
     private static boolean treeBranchContainsNoTransaction(Node<TransactionInformationPayload> called,
-                                                           Node<TransactionInformationPayload> previous) {
+                                                           Node<TransactionInformationPayload> previous,
+                                                           boolean sessionMode,
+                                                           boolean OSIVisEnabled) {
         Set<Node<TransactionInformationPayload>> callers = called.getChildren();
         TransactionInformationPayload calledData = called.getData();
         if (called.isLeaf()) {
-            return treeBranchContainsNoTransactionLeafCheck(calledData, previous.getData());
+            return treeBranchContainsNoTransactionLeafCheck(calledData, previous.getData(), sessionMode, OSIVisEnabled);
         }
         Boolean prevLambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(previous.getData(), calledData);
         if (Boolean.TRUE.equals(prevLambdaCheck)) {
@@ -167,7 +173,7 @@ public final class TransactionalTreeAnalyzer {
                     continue;
                 }
             }
-            if (treeBranchContainsNoTransaction(caller, called)) {
+            if (treeBranchContainsNoTransaction(caller, called, sessionMode, OSIVisEnabled)) {
                 return true;
             }
         }
@@ -220,10 +226,17 @@ public final class TransactionalTreeAnalyzer {
      * Does calculations in case of leaf in ContainsNoTransaction scenario
      * @param callerData - leaf data
      * @param calledData - previously called method(which is called by current leaf)
+     * @param sessionMode - flag if we should search for session, instead of transaction
+     * @param OSIVisEnabled - Open Session In View is enabled
      * @return - boolean value if the branch with no ongoing is present
      */
     private static boolean treeBranchContainsNoTransactionLeafCheck(TransactionInformationPayload callerData,
-                                                                    TransactionInformationPayload calledData) {
+                                                                    TransactionInformationPayload calledData,
+                                                                    boolean sessionMode,
+                                                                    boolean OSIVisEnabled) {
+        if (sessionMode && OSIVisEnabled && methodIsController(callerData.getClassName())) {
+            return false;
+        }
         Boolean lambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(calledData, callerData);
         if (lambdaCheck != null) {
             return lambdaCheck;
@@ -236,5 +249,9 @@ public final class TransactionalTreeAnalyzer {
             return TransactionalPropagation.SUPPORTS.equals(propagation);
         }
         return true;
+    }
+
+    private static boolean methodIsController(String className) {
+        return className.endsWith(Constants.CONTROLLER_CLASS_NAME_COMMON_POSTFIX);
     }
 }
