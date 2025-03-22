@@ -1,27 +1,28 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    Detects methods annotated with <code>@Transactional(propagation = Propagation.REQUIRES_NEW)</code> that are called within an existing transaction,
+    which may lead to unwanted nested transactions and performance issues.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
+    This inspection identifies cases where a method marked with <code>Propagation.REQUIRES_NEW</code> is executed inside another transaction.
+    Since this creates a separate transaction instead of participating in the existing one, it can cause unexpected behavior,
+    resource locking, or unnecessary overhead.
 </p>
 <p>
-    Embed code snippets:
+    Example:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    void saveAuditLog() {
+        // Saves audit log in a new transaction
+    }
+
+    @Transactional
+    void process() {
+        saveAuditLog(); // This starts a new transaction while one is already active
+    }
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
 </body>
 </html>

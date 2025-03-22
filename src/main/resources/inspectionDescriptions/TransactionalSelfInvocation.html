@@ -1,27 +1,31 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    Detects transactional method calls invoked on <code>this</code> within the same class, which prevents proper transaction handling.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
+    This inspection identifies cases where a method annotated with <code>@Transactional</code> calls another transactional method
+    from the same class using direct invocation. Since Spring manages transactions via proxies, self-invocation bypasses the proxy mechanism,
+    resulting in the transaction not being applied as expected.
 </p>
 <p>
-    Embed code snippets:
+    Example:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+    @Service
+    public class OrderService {
+
+        @Transactional
+        public void placeOrder() {
+            validateOrder(); // Transaction will not apply here
+        }
+
+        @Transactional
+        private void validateOrder() {
+            // Validation logic
+        }
+    }
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
 </body>
 </html>

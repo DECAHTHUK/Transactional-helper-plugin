@@ -1,27 +1,28 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    Detects methods annotated with <code>@Transactional(propagation = Propagation.NEVER)</code> that are called within an active transaction,
+    which can lead to unexpected behavior or errors.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
+    This inspection checks whether a method marked with <code>Propagation.NEVER</code> is executed while a transaction is active.
+    If a transaction is already running when the method is called, the inspection highlights the annotation and suggests
+    removing the transaction from the calling context.
 </p>
 <p>
-    Embed code snippets:
+    Example:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+    @Transactional(propagation = Propagation.NEVER)
+    void logOperation() {
+        // Logging operation that must not be in a transaction
+    }
+
+    @Transactional
+    void process() {
+        logOperation(); // This will cause an error because a transaction is active
+    }
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
 </body>
 </html>

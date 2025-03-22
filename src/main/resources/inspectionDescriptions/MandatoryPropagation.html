@@ -1,27 +1,27 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    Detects methods annotated with <code>@Transactional(propagation = Propagation.MANDATORY)</code> that are called without an existing transaction,
+    which can lead to runtime errors.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
+    This inspection checks whether a method marked with <code>Propagation.MANDATORY</code> is invoked within an active transaction.
+    If no transaction is present at the call site, the inspection highlights the annotation and suggests adding a transaction
+    at a higher level.
 </p>
 <p>
-    Embed code snippets:
+    Example:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+    @Transactional(propagation = Propagation.MANDATORY)
+    void saveData() {
+        // Some database operation
+    }
+
+    void process() {
+        saveData(); // This will cause an error if no transaction is active
+    }
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
 </body>
 </html>
