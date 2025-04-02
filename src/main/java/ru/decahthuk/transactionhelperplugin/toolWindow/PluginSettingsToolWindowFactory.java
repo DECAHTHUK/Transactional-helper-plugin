@@ -12,7 +12,7 @@ public class PluginSettingsToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         PluginSettingsToolWindow myToolWindow = new PluginSettingsToolWindow(project, toolWindow);
-        Content content = ContentFactory.SERVICE.getInstance().createContent(myToolWindow.getContent(), "", false);
+        Content content = ContentFactory.getInstance().createContent(myToolWindow.getContent(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
 }

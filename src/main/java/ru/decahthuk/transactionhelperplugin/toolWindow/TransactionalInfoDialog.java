@@ -1,6 +1,7 @@
 package ru.decahthuk.transactionhelperplugin.toolWindow;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.bundle.UIBundle;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
@@ -8,7 +9,6 @@ import ru.decahthuk.transactionhelperplugin.toolWindow.legend.LegendPanel;
 import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreeBuilder;
 import ru.decahthuk.transactionhelperplugin.toolWindow.tree.TransactionalTreePanel;
 
-import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;

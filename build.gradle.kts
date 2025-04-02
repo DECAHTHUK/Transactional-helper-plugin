@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.9.0"
+    id("org.jetbrains.intellij") version "1.17.4"
 }
 
 group = "ru.decahthuk"
@@ -8,6 +8,10 @@ version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
@@ -18,20 +22,16 @@ dependencies {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.1")
+    version.set("2024.1")
     plugins.set(listOf("com.intellij.java"))
 }
 
 tasks {
-    // Set the JVM compatibility versions
-    withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
 
+    // TODO: Make branch for 2022.1 and set appropriate props. org.jetbrains.intellij - 1.9.0, lombok 1.18.30
     patchPluginXml {
-        sinceBuild.set("221")
-        untilBuild.set("242.*")
+        sinceBuild.set("241")
+        untilBuild.set("243.*")
     }
 
     test {
