@@ -31,7 +31,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("221")
-        untilBuild.set("242.*")
+        untilBuild.set("243.*")
     }
 
     test {

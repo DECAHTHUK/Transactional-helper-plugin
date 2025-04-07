@@ -16,7 +16,7 @@ import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
-import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalTreeAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.utils.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class NeverPropagationInspection extends AbstractBaseJavaLocalInspectionT
                         Node<TransactionInformationPayload> tree = transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (Boolean.TRUE.equals(
                                 TransactionalTreeAnalyzer.treeContainsUpperLevelTransactionalWithoutCurrent(tree))) {
-                            LOG.warn("NeverPropagationInspection ping");
+                            LOG.debug("NeverPropagationInspection ping");
                             holder.registerProblem(annotation,
                                     InspectionBundle.message("inspection.transaction.never.descriptor"),
                                     new PropagationQuickFix());

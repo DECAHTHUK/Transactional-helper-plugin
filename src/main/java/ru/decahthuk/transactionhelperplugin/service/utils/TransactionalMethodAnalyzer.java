@@ -1,4 +1,4 @@
-package ru.decahthuk.transactionhelperplugin.service.staticservice;
+package ru.decahthuk.transactionhelperplugin.service.utils;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;

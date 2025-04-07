@@ -8,7 +8,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +16,7 @@ import ru.decahthuk.transactionhelperplugin.config.CacheableSettings;
 import ru.decahthuk.transactionhelperplugin.model.LambdaReferenceInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
-import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.utils.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils;
 import ru.decahthuk.transactionhelperplugin.utils.PsiMethodUtils;
 

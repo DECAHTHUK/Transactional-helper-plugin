@@ -14,9 +14,9 @@ import ru.decahthuk.transactionhelperplugin.model.EntityClassInformation;
 import ru.decahthuk.transactionhelperplugin.model.Node;
 import ru.decahthuk.transactionhelperplugin.model.TransactionInformationPayload;
 import ru.decahthuk.transactionhelperplugin.service.EntitySearcherService;
-import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.utils.TransactionalMethodAnalyzer;
 import ru.decahthuk.transactionhelperplugin.service.TransactionalSearcherService;
-import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalTreeAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.utils.TransactionalTreeAnalyzer;
 import ru.decahthuk.transactionhelperplugin.utils.Constants;
 
 import java.util.Map;
@@ -56,7 +56,7 @@ public class LazyInitializationInspection extends AbstractBaseJavaLocalInspectio
                                 transactionalSearcherService.buildUsageTreeWithBenchmarking(method);
                         if (Boolean.TRUE.equals(TransactionalTreeAnalyzer
                                 .treeBranchContainsNoSessionWithCurrent(transactionInformationPayload, cacheableSettings.isOSIVIsEnabled()))) {
-                            LOG.warn("LazyInitializationInspection ping");
+                            LOG.debug("LazyInitializationInspection ping");
                             holder.registerProblem(call,
                                     InspectionBundle.message("inspection.method.lazy.getter.call.descriptor"));
                         }

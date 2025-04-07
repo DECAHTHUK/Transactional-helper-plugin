@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import ru.decahthuk.transactionhelperplugin.bundle.InspectionBundle;
 import ru.decahthuk.transactionhelperplugin.inspections.quickFix.TransactionalSelfInvocationQuickFix;
-import ru.decahthuk.transactionhelperplugin.service.staticservice.TransactionalMethodAnalyzer;
+import ru.decahthuk.transactionhelperplugin.service.utils.TransactionalMethodAnalyzer;
 
 public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocalInspectionTool {
 
@@ -28,7 +28,7 @@ public class TransactionalSelfInvocationInspection extends AbstractBaseJavaLocal
                     PsiMethod calledMethod = call.resolveMethod();
                     PsiMethod methodThatCalls = TransactionalMethodAnalyzer.getEnclosingMethod(call);
                     if (TransactionalMethodAnalyzer.methodsAreTransactionalSelfInvoked(calledMethod, methodThatCalls)) {
-                        LOG.warn("TransactionalSelfInvocationInspection ping");
+                        LOG.debug("TransactionalSelfInvocationInspection ping");
                         holder.registerProblem(call,
                                 InspectionBundle.message("inspection.method.transactional.self.invocation.descriptor"),
                                 new TransactionalSelfInvocationQuickFix());

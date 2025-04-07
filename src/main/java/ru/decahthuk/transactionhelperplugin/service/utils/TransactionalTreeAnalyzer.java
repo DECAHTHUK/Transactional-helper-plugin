@@ -1,4 +1,4 @@
-package ru.decahthuk.transactionhelperplugin.service.staticservice;
+package ru.decahthuk.transactionhelperplugin.service.utils;
 
 import org.jetbrains.annotations.Nullable;
 import ru.decahthuk.transactionhelperplugin.model.Node;
