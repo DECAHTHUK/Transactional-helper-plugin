@@ -40,10 +40,11 @@ tasks {
     }
 
     signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
+        System.getenv("CERT_PATH")?.let { certificateChainFile.set(File(it)) }
+        System.getenv("PRIVATE_KEY_PATH")?.let { privateKeyFile.set(File(it)) }
+        System.getenv("PRIVATE_KEY_PASSWORD")?.let { password.set(it) }
     }
+
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
