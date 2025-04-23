@@ -70,7 +70,11 @@ public class PluginSettingsToolWindow {
                 }
             });
             saveMaxTreeDepthButton.addActionListener(e -> saveMaxTreeDepthButtonLogic(project));
-            viewTreeButton.addActionListener(e -> showTreeWindow(project, (MethodData) classMethodsBox.getSelectedItem()));
+            viewTreeButton.addActionListener(e -> {
+                if (classMethodsBox.getSelectedItem() != null) {
+                    showTreeWindow(project, (MethodData) classMethodsBox.getSelectedItem());
+                }
+            });
             refreshInspectionsButton.addActionListener(e -> {
                 project.getService(TransactionalSearcherService.class).cacheEvict();
                 DaemonCodeAnalyzer.getInstance(project).restart(); // rerunning inspections
