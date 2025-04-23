@@ -14,16 +14,18 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    <p><strong>Spring Transaction Helper</strong> enhances your development experience by providing robust support for Spring Framework's declarative transaction management using the @Transactional annotation.</p>
-
+    <p><strong>Spring Transaction Helper</strong> provides robust support for Spring Framework's declarative transaction management using the @Transactional annotation.</p>
+    <br>
     <p>Key Features:</p>
     <ul>
         <li><strong>Inspections:</strong> Includes LazyInitializationInspection, MandatoryPropagationInspection, NeverPropagationInspection, PotentiallyUnwantedNestedTransactionInspection, and TransactionalSelfInvocationInspection.</li>
         <li><strong>Method Call Tree:</strong> Builds a comprehensive tree of method calls and their @Transactional states to help you understand and manage transactional boundaries.</li>
         <li><strong>User Interface:</strong> Offers an intuitive UI to visualize the method call tree, making it easier to debug and optimize transactional behavior.</li>
     </ul>
-
-    <p>This plugin is essential for developers working with Spring Framework, helping to ensure efficient and error-free transaction management in your applications.</p>
+    <br>
+    <p>This plugin is useful for developers working with Spring Framework, helping to ensure efficient and error-free transaction management in your applications.</p>
+    <br>
+    <p>TODO: Async consideration support, non-declarative transaction management(not sure)</p>
 ]]></description>
 
 

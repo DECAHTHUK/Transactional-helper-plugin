@@ -1,5 +1,7 @@
 # Spring Transaction Helper Plugin
 
+### [LINK](https://plugins.jetbrains.com/plugin/27059-spring-transaction-helper)
+
 ## Overview
 
 The **Spring Transaction Helper** plugin is designed to enhance the development experience for users of the Spring Framework by providing robust support for declarative transaction management using the `@Transactional` annotation. This plugin was developed as part of a bachelor thesis, aiming to address common challenges in managing transactions within Spring applications.
