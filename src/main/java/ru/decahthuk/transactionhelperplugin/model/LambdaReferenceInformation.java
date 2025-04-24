@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.decahthuk.transactionhelperplugin.model.enums.TransactionalPropagation;
 
-import java.util.Map;
-
 /**
  * Information about lambda call of a method
  */
