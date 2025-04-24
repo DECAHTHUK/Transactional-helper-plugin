@@ -1,13 +1,22 @@
 package ru.decahthuk.transactionhelperplugin.service;
 
+import com.intellij.find.FindManager;
+import com.intellij.ide.ui.search.SearchUtil;
+import com.intellij.ide.util.SuperMethodWarningUtil;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.refactoring.psi.SearchUtils;
 import com.intellij.util.Query;
+import lombok.Data;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -126,10 +135,19 @@ public final class TransactionalSearcherService implements Disposable {
             return newNode;
         }
 
-        Query<PsiReference> query = ReferencesSearch.search(method);
+        //TODO: CHANGE THIS ASAP. CANNOT FIND PROPER SOLUTION
+        Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
+        if (method.getContainingClass() != null) {
+            for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
+                PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
+                if (methodBySignature != null) {
+                    allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
+                }
+            }
+        }
         Set<PsiMethod> visitedMethods = new HashSet<>();
 
-        query.forEach(reference -> {
+        allReferences.forEach(reference -> {
             PsiElement element = reference.getElement();
             PsiMethod containingMethod = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (containingMethod != null) {
@@ -215,5 +233,10 @@ public final class TransactionalSearcherService implements Disposable {
     @Override
     public void dispose() {
         cacheEvict();
+    }
+
+    @Data
+    static class Test {
+        private PsiMethod[] methods;
     }
 }
