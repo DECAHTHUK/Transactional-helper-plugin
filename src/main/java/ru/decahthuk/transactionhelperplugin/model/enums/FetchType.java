@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum FetchType {
 
-    LAZY("FetchType.LAZY"),
-    EAGER("FetchType.EAGER");
+    LAZY("LAZY"),
+    EAGER("EAGER");
 
     private final String textValue;
 
