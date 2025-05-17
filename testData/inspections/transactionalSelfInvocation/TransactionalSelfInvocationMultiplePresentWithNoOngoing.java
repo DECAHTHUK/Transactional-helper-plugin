@@ -4,10 +4,10 @@ import org.springframework.transaction.annotation.Propagation;
 public class TransactionalSelfInvocationMultiplePresentWithNoOngoing {
 
     public void outerMethod() {
-        <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>;
+        <warning descr="Transactional method self-invocation from the same class. Proxy won't work.">innerMethod()</warning>;
         boolean somelogic = false;
         if (!somelogic) {
-            <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod2()</warning>;
+            <warning descr="Transactional method self-invocation from the same class. Proxy won't work.">innerMethod2()</warning>;
         }
     }
 

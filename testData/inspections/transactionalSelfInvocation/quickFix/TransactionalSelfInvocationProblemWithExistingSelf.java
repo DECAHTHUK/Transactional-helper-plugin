@@ -8,7 +8,7 @@ public class TransactionalSelfInvocationProblemWithExistingSelf {
     private TransactionalSelfInvocationProblemWithExistingSelf existingSelf;
 
     public void outerMethod() {
-        <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>;
+        <warning descr="Transactional method self-invocation from the same class. Proxy won't work.">innerMethod()</warning>;
     }
 
     @Transactional

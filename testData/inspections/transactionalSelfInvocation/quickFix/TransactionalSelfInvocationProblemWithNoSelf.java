@@ -4,7 +4,7 @@ import org.springframework.transaction.annotation.Propagation;
 public class TransactionalSelfInvocationProblemWithNoSelf {
 
     public void outerMethod() {
-        <warning descr="Transactional method self invocation from the same class. Proxy won't work.">innerMethod()</warning>;
+        <warning descr="Transactional method self-invocation from the same class. Proxy won't work.">innerMethod()</warning>;
     }
 
     @Transactional

@@ -31,6 +31,13 @@ public final class TransactionalTreeAnalyzer {
         }
         Set<Node<TransactionInformationPayload>> callers = called.getChildren();
         for (Node<TransactionInformationPayload> caller : callers) {
+            // This pair won't be checked inside, so check is here
+            Boolean lambdaCheck = performTreeContainsUpperLevelTransactionLambdaCheck(called.getData(), caller.getData());
+            if (Boolean.TRUE.equals(lambdaCheck)) {
+                return true;
+            } else if (Boolean.FALSE.equals(lambdaCheck)) {
+                continue; // no sense to go check further, blocking FALSE
+            }
             boolean branch = treeContainsUpperLevelTransaction(caller, called);
             if (branch) {
                 return true;
@@ -52,6 +59,13 @@ public final class TransactionalTreeAnalyzer {
         }
         Set<Node<TransactionInformationPayload>> callers = called.getChildren();
         for (Node<TransactionInformationPayload> caller : callers) {
+            // This pair won't be checked inside, so check is here
+            Boolean lambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(called.getData(), caller.getData());
+            if (Boolean.TRUE.equals(lambdaCheck)) {
+                return true;
+            } else if (Boolean.FALSE.equals(lambdaCheck)) {
+                continue; // no sense to go check further, blocking FALSE
+            }
             boolean branch = treeBranchContainsNoTransaction(caller, called, false, false);
             if (branch) {
                 return true;
@@ -74,40 +88,35 @@ public final class TransactionalTreeAnalyzer {
     /**
      * Searches if there is any parent transaction
      *
-     * @param called - tree of calls (called method should be passed)
+     * @param current - tree of calls (called method should be passed)
      * @param previous - called method of param 'called'
      * @return - there is higher level transaction going on
      */
-    private static boolean treeContainsUpperLevelTransaction(Node<TransactionInformationPayload> called,
+    private static boolean treeContainsUpperLevelTransaction(Node<TransactionInformationPayload> current,
                                                              Node<TransactionInformationPayload> previous) {
-        Set<Node<TransactionInformationPayload>> callers = called.getChildren();
-        TransactionInformationPayload calledData = called.getData();
-        if (called.isLeaf()) {
-            return treeContainsUpperLevelTransactionLeafCheck(calledData, previous.getData());
-        }
-        Boolean prevLambdaCheck = performTreeContainsUpperLevelTransactionLambdaCheck(previous.getData(), calledData);
-        if (prevLambdaCheck != null) {
-            return prevLambdaCheck;
+        Set<Node<TransactionInformationPayload>> callers = current.getChildren();
+        TransactionInformationPayload currentData = current.getData();
+        if (current.isLeaf()) {
+            return treeContainsUpperLevelTransactionLeafCheck(currentData, previous.getData());
         }
         for (Node<TransactionInformationPayload> caller : callers) {
             TransactionInformationPayload callerData = caller.getData();
-            Boolean lambdaCheck = performTreeContainsUpperLevelTransactionLambdaCheck(calledData, callerData);
-            if (lambdaCheck != null) {
-                return lambdaCheck;
-            }
-            if (calledData.isTransactional() && calledData.methodIsCorrectlySelfInvokedFromMethod(callerData)) {
-                TransactionalPropagation propagation = calledData.getPropagation();
-                if (propagation == TransactionalPropagation.NOT_SUPPORTED) {
-                    continue;
-                }
-                if (propagation == TransactionalPropagation.NEVER) {
+            if (currentData.isTransactional() && currentData.methodIsCorrectlySelfInvokedFromMethod(callerData)) {
+                TransactionalPropagation propagation = currentData.getPropagation();
+                if (propagation == TransactionalPropagation.NOT_SUPPORTED || propagation == TransactionalPropagation.NEVER) {
                     return false;
                 }
                 if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
                     return true;
                 }
             }
-            if (treeContainsUpperLevelTransaction(caller, called)) {
+            Boolean lambdaCheck = performTreeContainsUpperLevelTransactionLambdaCheck(currentData, callerData);
+            if (Boolean.TRUE.equals(lambdaCheck)) {
+                return true;
+            } else if (Boolean.FALSE.equals(lambdaCheck)) {
+                continue;
+            }
+            if (treeContainsUpperLevelTransaction(caller, current)) {
                 return true;
             }
         }
@@ -152,26 +161,22 @@ public final class TransactionalTreeAnalyzer {
         if (called.isLeaf()) {
             return treeBranchContainsNoTransactionLeafCheck(calledData, previous.getData(), sessionMode, OSIVisEnabled);
         }
-        Boolean prevLambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(previous.getData(), calledData);
-        if (Boolean.TRUE.equals(prevLambdaCheck)) {
-            return true;
-        }
         for (Node<TransactionInformationPayload> caller : callers) {
             TransactionInformationPayload callerData = caller.getData();
-            Boolean lambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(calledData, callerData);
-            if (Boolean.TRUE.equals(lambdaCheck)) {
-                return true;
-            } else if (Boolean.FALSE.equals(lambdaCheck)) {
-                continue;
-            }
             if (calledData.isTransactional() && calledData.methodIsCorrectlySelfInvokedFromMethod(callerData)) {
                 TransactionalPropagation propagation = calledData.getPropagation();
                 if (propagation == TransactionalPropagation.NOT_SUPPORTED || propagation == TransactionalPropagation.NEVER) {
                     return true;
                 }
                 if (!TransactionalPropagation.SUPPORTS.equals(propagation)) {
-                    continue;
+                    return false;
                 }
+            }
+            Boolean lambdaCheck = performTreeBranchContainsNoTransactionLambdaCheck(calledData, callerData);
+            if (Boolean.TRUE.equals(lambdaCheck)) {
+                return true;
+            } else if (Boolean.FALSE.equals(lambdaCheck)) {
+                continue;
             }
             if (treeBranchContainsNoTransaction(caller, called, sessionMode, OSIVisEnabled)) {
                 return true;

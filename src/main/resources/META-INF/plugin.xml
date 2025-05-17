@@ -37,68 +37,68 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.transaction.nested.display.name"
-                     shortName="TransactionalNestedRequiresNewPropagation"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.PotentiallyUnwantedNestedTransactionInspection"/>
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.transaction.nested.display.name"
+                         shortName="TransactionalNestedRequiresNewPropagation"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="ru.decahthuk.transactionhelperplugin.inspections.PotentiallyUnwantedNestedTransactionInspection"/>
 
 
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.transaction.mandatory.display.name"
-                     shortName="TransactionalMandatoryPropagation"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.MandatoryPropagationInspection"/>
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.transaction.mandatory.display.name"
+                         shortName="TransactionalMandatoryPropagation"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="ru.decahthuk.transactionhelperplugin.inspections.MandatoryPropagationInspection"/>
 
 
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.transaction.never.display.name"
-                     shortName="TransactionalNeverPropagation"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.NeverPropagationInspection"/>
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.transaction.never.display.name"
+                         shortName="TransactionalNeverPropagation"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="ru.decahthuk.transactionhelperplugin.inspections.NeverPropagationInspection"/>
 
 
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.method.lazy.getter.call.display.name"
-                     shortName="TransactionalLazyInitialization"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.LazyInitializationInspection"/>
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.method.lazy.getter.call.display.name"
+                         shortName="TransactionalLazyInitialization"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="ru.decahthuk.transactionhelperplugin.inspections.LazyInitializationInspection"/>
 
 
-    <localInspection language="JAVA"
-                     bundle="messages.InspectionBundle"
-                     key="inspection.method.transactional.self.invocation.display.name"
-                     shortName="TransactionalSelfInvocation"
-                     groupPath="Java"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WARNING"
-                     implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionalSelfInvocationInspection"/>
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.method.transactional.self.invocation.display.name"
+                         shortName="TransactionalSelfInvocation"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="ru.decahthuk.transactionhelperplugin.inspections.TransactionalSelfInvocationInspection"/>
 
-    <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.Hierarchy.Subtypes" anchor="right"
-                factoryClass="ru.decahthuk.transactionhelperplugin.toolWindow.PluginSettingsToolWindowFactory"/>
+        <toolWindow id="TransactionalHelperPluginSettingsView" secondary="true" icon="AllIcons.Hierarchy.Subtypes" anchor="right"
+                    factoryClass="ru.decahthuk.transactionhelperplugin.toolWindow.PluginSettingsToolWindowFactory"/>
 
-    <applicationService serviceImplementation="ru.decahthuk.transactionhelperplugin.config.CacheableSettings"/>
+        <applicationService serviceImplementation="ru.decahthuk.transactionhelperplugin.config.CacheableSettings"/>
     </extensions>
 </idea-plugin>
