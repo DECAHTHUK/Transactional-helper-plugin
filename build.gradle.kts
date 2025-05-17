@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ru.decahthuk"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("221")
-        untilBuild.set("243.*")
+        untilBuild.set("251.*")
     }
 
     test {
