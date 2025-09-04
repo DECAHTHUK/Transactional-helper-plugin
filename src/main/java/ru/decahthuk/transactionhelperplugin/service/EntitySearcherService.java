@@ -173,7 +173,7 @@ public final class EntitySearcherService implements Disposable {
                 if (annotationClass == null) {
                     annotationClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.allScope(project));
                 }
-        }
+            }
             if (annotationClass == null) return; // already evaluated by jakartaIsNotPresent()
 
             Collection<PsiClass> annotatedElements = AnnotatedElementsSearch.searchPsiClasses(
