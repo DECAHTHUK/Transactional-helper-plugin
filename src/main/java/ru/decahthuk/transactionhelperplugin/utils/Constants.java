@@ -21,6 +21,7 @@ public final class Constants {
     public static final String GETTER_PREFIX = "get";
     public static final String SELF_WIRED_FIELD_NAME = "self";
     public static final String CONTROLLER_CLASS_NAME_COMMON_POSTFIX = "Controller";
+    public static final String JAVA_LANG_OBJECT = "java.lang.Object";
 
     public static final TransactionalPropagation DEFAULT_PROPAGATION = TransactionalPropagation.REQUIRED;
 

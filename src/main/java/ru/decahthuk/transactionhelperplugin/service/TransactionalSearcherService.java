@@ -36,12 +36,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static ru.decahthuk.transactionhelperplugin.utils.Constants.JAVA_LANG_OBJECT;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TEST_CLASS_POSTFIX;
 import static ru.decahthuk.transactionhelperplugin.utils.Constants.TRANSACTIONAL_ANNOTATION_QUALIFIED_NAME;
 import static ru.decahthuk.transactionhelperplugin.utils.PsiAnnotationUtils.getPropagationArg;
@@ -141,11 +143,21 @@ public final class TransactionalSearcherService implements Disposable {
             return newNode;
         }
 
-        //TODO: CHANGE THIS ASAP. CANNOT FIND PROPER SOLUTION
+        //TODO: change this. cannot find proper solution
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
+
         if (method.getContainingClass() != null) {
-            for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
+            PsiClass containingClass = method.getContainingClass();
+            // Add parent interface usages
+            for (PsiClass anInterface : containingClass.getInterfaces()) {
                 PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
+                if (methodBySignature != null) {
+                    allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
+                }
+            }
+            // Add superclass usages
+            if (containingClass.getSuperClass() != null && !Objects.equals(containingClass.getSuperClass().getQualifiedName(), JAVA_LANG_OBJECT)) {
+                PsiMethod methodBySignature = containingClass.getSuperClass().findMethodBySignature(method, false);
                 if (methodBySignature != null) {
                     allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
                 }

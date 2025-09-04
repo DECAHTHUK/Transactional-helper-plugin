@@ -72,7 +72,7 @@ public class TransactionInformationPayload {
     private Map<String, Integer> numberOfCallsInsideOfMethod = new HashMap<>();
 
     /**
-     * List of method names where incorrect self invocation(no self injection) is present
+     * List of method names where incorrect self-invocation(no self injection) is present
      */
     private List<String> incorrectSelfInvocationsContainingMethodsList = new ArrayList<>();
 
